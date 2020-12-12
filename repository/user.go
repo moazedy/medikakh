@@ -34,11 +34,8 @@ func (u *user) Register(user models.User) error {
 		queries.RegisterUserQuery,
 		&gocb.QueryOptions{
 			NamedParameters: map[string]interface{}{
-				"id":         user.Id,
-				"username":   user.Username,
-				"password":   user.Password,
-				"role":       user.Role,
-				"created_at": user.CreatedAt,
+				"id":   user.Id,
+				"user": user,
 			},
 		},
 	)

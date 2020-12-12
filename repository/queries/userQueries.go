@@ -2,7 +2,7 @@ package queries
 
 const (
 	RegisterUserQuery = `INSERT INTO users (KEY,VALUE) ` +
-		` VALUES ($id, {"username":$username, "password":$password, "role":$role, "created_at":$created_at})`
+		` VALUES ($id, $user)`
 
 	ReadUserByIdQuery = `SELECT * FROM users WHERE meta().id = $1`
 
