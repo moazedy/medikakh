@@ -18,4 +18,12 @@ const (
 	ReadArticleContentQuery = `SELECT articles.content FROM articles WHRE meta().id=$1`
 
 	ReadArticleResultQuery = `SELECT articles.result FROM articles WHRE meta().id=$1`
+
+	DeleteArticleQuery = `DELETE FROM articles WHERE meta().id= $1`
+
+	GetArticleStatusQuery = `SELECT articles.status FROM articles WHERE meta().id = $1`
+
+	IsArticleExistsQuery = `SELECT meta().id FROM articles WHERE articles.title = $1`
+
+	UpdateArticleQuery = `UPDATE articles SET title=$1 status=$2 summery=$3 content=$4 result=$5 category=$6 sub_category=$7 WHERE meta().id = $8`
 )

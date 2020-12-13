@@ -182,6 +182,7 @@ func (u *user) UpdateUser(newUser models.User) error {
 			newUser.Password,
 			newUser.Role,
 			newUser.CreatedAt,
+      newUser.Id,
 		}},
 	)
 	if err != nil {
@@ -205,7 +206,7 @@ func (u *user) IsUsernameExists(username string) (*bool, error) {
 		err = res.Row(&id)
 		if err != nil {
 			if err == gocb.ErrNoResult {
-				return nil, errors.New("user does not exist")
+				return false, errors.New("user does not exist") // it should be checked later
 			}
 			return nil, err
 		}

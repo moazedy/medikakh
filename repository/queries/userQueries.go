@@ -16,7 +16,7 @@ const (
 
 	GetUserIdByUsernameQuery = `SELECT meta().id FORM users WHERE users.username= $1`
 
-	UpdateUserQuery = `UPDATE users SET username=$1 password=$2 role=$3 created_at=$4`
+	UpdateUserQuery = `UPDATE users SET username=$1 password=$2 role=$3 created_at=$4 WHERE meta().id = $5`
 
 	IsUsernameExistsQuery = ` SELECT meta(),id FROM users WHERE users.username= $1`
 )
