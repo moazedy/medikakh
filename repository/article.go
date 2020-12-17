@@ -23,6 +23,7 @@ type ArticleRepo interface {
 	IsArticleExists(title string) (*bool, error)
 	GetArticleByCategory(cat string) ([]models.Article, error) // to do
 	GetAllArticles() ([]models.Article, error)                 // to do
+	GetCategorySubCategories(category string) ([]string, error)
 }
 
 type article struct {
