@@ -17,8 +17,8 @@ type VideoRepo interface {
 	DeleteVideo(id string) error
 	UpdateVideo(video models.Video) error
 	GetVideoStatus(id string) (*string, error)
-	GetVidoSubCategory(id string) (*string, error)
 	GetAllVideos() ([]models.Video, error)
+	GetCategorySubCategories(category string) ([]string, error) // needs to be thougt a bout ...
 }
 
 type video struct {
@@ -98,4 +98,185 @@ func (v *video) GetVideoByTitle(title string) (*models.Video, error) {
 
 	return &newVideo, nil
 
+}
+
+func (v *video) GetVideoId(title string) (*string, error) {
+	res, err := v.session.Query(
+		queries.GetVideoIdQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{title}},
+	)
+	if err != nil {
+		if err == gocb.ErrNoResult {
+			return nil, errors.New("video does not exist !")
+		}
+
+		return nil, err
+	}
+
+	var title string
+	for res.Next() {
+		err = res.Row(&title)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &title, nil
+}
+
+func (v *video) GetVideoCategory(id string) (*string, error) {
+	res, err := v.session.Query(
+		queries.GetVideoCategoryQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
+	)
+	if err != nil {
+		if err == gocb.ErrNoResult {
+			return nil, errors.New("video does not exist !")
+		}
+
+		return nil, err
+	}
+
+	var cat string
+	for res.Next() {
+		err = res.Row(&cat)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &cat, nil
+
+}
+
+func (v *video) GetVideoSubCategory(id string) (*string, error) {
+	res, err := v.session.Query(
+		queries.GetVideoSubCategory,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
+	)
+	if err != nil {
+		if err == gocb.ErrNoResult {
+			return nil, errors.New("video does not exist !")
+		}
+
+		return nil, err
+	}
+
+	var subCat string
+	for res.Next() {
+		err = res.Row(&subCat)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &subCat, nil
+
+}
+func (v *video) GetVideosByCategory(cat string) ([]models.Video, error) {
+	res, err := v.session.Query(
+		queries.GetVideosByCategoryQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{cat}},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var viedos []models.Video
+	for res.Next() {
+		var video models.Video
+		err = res.Row(&video)
+		if err != nil {
+			if err == gocb.ErrNoResult {
+				return videos, nil
+			}
+
+			return nil, err
+		}
+
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+}
+
+func (v *video) DeleteVideo(id string) error {
+	_, err := v.session.Query(
+		queries.DeleteVideoQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v *video) UpdateVideo(video models.Video) error {
+	_, err := v.session.Query(
+		queries.UpdateVideoQuery,
+		&gocb.QueryOptions{NamedParameters: map[string]interface{}{
+			"title":        video.Title,
+			"contentlink":  video.ContentLink,
+			"status":       video.Status,
+			"category":     video.Category,
+			"subcategory":  video.SubCategory,
+			"descriptions": video.Descriptions,
+		}},
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v *video) GetVideoStatus(id string) (*string, error) {
+	res, err := v.session.Query(
+		queries.GetVideoStatusQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
+	)
+	if err != nil {
+		if err == gocb.ErrNoResult {
+			return nil, errors.New("video does not exist !")
+		}
+
+		return nil, err
+	}
+
+	var status string
+	for res.Next() {
+		err = res.Row(&status)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &status, nil
+
+}
+
+func (v *video) GetAllVideos() ([]models.Video, error) {
+	res, err := v.session.Query(
+		queries.GetAllVideosQuery,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []models.Video
+	for res.Next() {
+		var video models.Video
+		err = res.Row(&video)
+		if err != nil {
+			if err == gocb.ErrNoResult {
+				return videos, nil
+			}
+			return nil, err
+		}
+		videos = append(videos, video)
+	}
+
+	return videos, nil
 }
