@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"medikakh/domain/models"
 	"medikakh/repository/queries"
 
@@ -53,7 +54,7 @@ func (u *user) ReadUserById(userId string) (*models.User, error) {
 		},
 	)
 	if err != nil {
-		return errors.New("error on getting data from db")
+		return nil, errors.New("error on getting data from db")
 	}
 
 	var newUser models.User
@@ -66,12 +67,12 @@ func (u *user) ReadUserById(userId string) (*models.User, error) {
 			return nil, err
 		}
 	}
-	return newUser, nil
+	return &newUser, nil
 }
 
 func (u *user) ReadUserByUsername(username string) (*models.User, error) {
 	res, err := u.session.Query(
-		queries.ReadUserByUsername,
+		queries.ReadUserByUsernameQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{username}},
 	)
 	if err != nil {
@@ -88,7 +89,7 @@ func (u *user) ReadUserByUsername(username string) (*models.User, error) {
 			return nil, err
 		}
 	}
-	return newUser, nil
+	return &newUser, nil
 
 }
 
@@ -129,7 +130,7 @@ func (u *user) GetUserPassword(Id string) (*string, error) {
 
 func (u *user) GetUserRole(Id string) (*string, error) {
 	res, err := u.session.Query(
-		queries.GetUserRole,
+		queries.GetUserRoleQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{Id}},
 	)
 	if err != nil {
@@ -182,7 +183,7 @@ func (u *user) UpdateUser(newUser models.User) error {
 			newUser.Password,
 			newUser.Role,
 			newUser.CreatedAt,
-      newUser.Id,
+			newUser.Id,
 		}},
 	)
 	if err != nil {
@@ -195,26 +196,26 @@ func (u *user) UpdateUser(newUser models.User) error {
 func (u *user) IsUsernameExists(username string) (*bool, error) {
 	res, err := u.session.Query(
 		queries.IsUsernameExistsQuery,
-		&gocb.QueryOptions{PositinalParameters: []interface{}{username}},
+		&gocb.QueryOptions{PositionalParameters: []interface{}{username}},
 	)
 	if err != nil {
 		return nil, errors.New("error on serching for specific username")
 	}
-
+	var returnValue bool
 	var id string
 	for res.Next() {
 		err = res.Row(&id)
 		if err != nil {
 			if err == gocb.ErrNoResult {
-				return false, errors.New("user does not exist") // it should be checked later
+				return &returnValue, errors.New("user does not exist") // it should be checked later
 			}
 			return nil, err
 		}
 	}
 
-	if id != "" || id != nil {
-		return true, nil
+	if id != "" {
+		returnValue = true
 	}
 
-	return false, nil
+	return &returnValue, nil
 }

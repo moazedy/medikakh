@@ -9,4 +9,8 @@ const (
 
 	ReadCategorySubCategoriesQuery = `SELECT categories.sub_category FROM categories ` +
 		` WHERE meta().id=$1`
+
+	GetCategoryIdQuery = `SELECT categories.id FROM categories WHERE categories.name = $1`
+
+	GetCategoriesQuery = `SELECT * FROM categories`
 )

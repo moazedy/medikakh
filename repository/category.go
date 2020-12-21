@@ -2,6 +2,7 @@ package repository
 
 import (
 	"medikakh/domain/models"
+	"medikakh/repository/queries"
 
 	"github.com/couchbase/gocb/v2"
 )
@@ -12,6 +13,7 @@ type CategoryRepo interface {
 	ReadCategoryByName(name string) (*models.Category, error)
 	ReadCategorySubCategories(id string) ([]string, error)
 	GetCategoryId(name string) (*string, error)
+	GetCategories() ([]models.Category, error)
 }
 
 type category struct {
@@ -53,7 +55,7 @@ func (c *category) ReadCategoryById(id string) (*models.Category, error) {
 	for res.Next() {
 		err = res.Row(&cat)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -73,7 +75,7 @@ func (c *category) ReadCategoryByName(name string) (*models.Category, error) {
 	for res.Next() {
 		err = res.Row(&cat)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -99,4 +101,51 @@ func (c *category) ReadCategorySubCategories(id string) ([]string, error) {
 	}
 
 	return subCats, nil
+}
+
+func (c *category) GetCategoryId(name string) (*string, error) {
+	res, err := c.session.Query(
+		queries.GetCategoryIdQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{name}},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var id string
+	for res.Next() {
+		err = res.Row(&id)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &id, nil
+}
+
+func (c *category) GetCategories() ([]models.Category, error) {
+	res, err := c.session.Query(
+		queries.GetCategoriesQuery,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var cats []models.Category
+	for res.Next() {
+		var cat models.Category
+		err = res.Row(&cat)
+		if err != nil {
+			if err == gocb.ErrNoResult {
+				return cats, nil
+			}
+
+			return nil, err
+		}
+
+		cats = append(cats, cat)
+	}
+
+	return cats, nil
 }

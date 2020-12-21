@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"medikakh/domain/models"
-
+	"errors"
 	"github.com/couchbase/gocb/v2"
+	"medikakh/domain/models"
+	"medikakh/repository/queries"
 )
 
 type ArticleRepo interface {
@@ -21,9 +22,9 @@ type ArticleRepo interface {
 	DeleteArticle(id string) error
 	GetArticleStatus(id string) (*string, error)
 	IsArticleExists(title string) (*bool, error)
-	GetArticleByCategory(cat string) ([]models.Article, error) // to do
-	GetAllArticles() ([]models.Article, error)                 // to do
-	GetCategorySubCategories(category string) ([]string, error)
+	//GetArticleByCategory(cat string) ([]models.Article, error) // to do
+	//GetAllArticles() ([]models.Article, error)                 // to do
+	//GetCategorySubCategories(category string) ([]string, error)
 }
 
 type article struct {
@@ -79,7 +80,7 @@ func (a *article) ReadArticleById(id string) (*models.Article, error) {
 
 func (a *article) ReadArticleByTitle(title string) (*models.Article, error) {
 	res, err := a.session.Query(
-		queries,
+		queries.ReadArticleByTitleQuery,
 		&gocb.QueryOptions{NamedParameters: map[string]interface{}{
 			"title": title,
 		}},
@@ -106,7 +107,7 @@ func (a *article) ReadArticleByTitle(title string) (*models.Article, error) {
 
 func (a *article) GetArticleCategory(id string) (*string, error) {
 	res, err := a.session.Query(
-		queries.GetArticleCategory,
+		queries.GetArticleCategoryQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
@@ -125,12 +126,12 @@ func (a *article) GetArticleCategory(id string) (*string, error) {
 		}
 	}
 
-	return category, nil
+	return &category, nil
 }
 
 func (a *article) GetArticleSubsCategory(id string) (*string, error) {
 	res, err := a.session.Query(
-		queries.GetArticleSubCategory,
+		queries.GetArticleSubCategoryQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
@@ -155,7 +156,7 @@ func (a *article) GetArticleSubsCategory(id string) (*string, error) {
 func (a *article) GetArticleId(title string) (*string, error) {
 	res, err := a.session.Query(
 		queries.GetArticleIdQuery,
-		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
+		&gocb.QueryOptions{PositionalParameters: []interface{}{title}},
 	)
 	if err != nil {
 		if err == gocb.ErrNoResult {
@@ -289,36 +290,36 @@ func (a *article) GetArticleStatus(id string) (*string, error) {
 }
 
 func (a *article) IsArticleExists(title string) (*bool, error) {
-	res, err := u.session.Query(
+	res, err := a.session.Query(
 		queries.IsArticleExistsQuery,
-		&gocb.QueryOptions{PositinalParameters: []interface{}{title}},
+		&gocb.QueryOptions{PositionalParameters: []interface{}{title}},
 	)
 	if err != nil {
 		return nil, errors.New("error on serching for specific article")
 	}
-
+	var returnValue bool
 	var id string
 	for res.Next() {
 		err = res.Row(&id)
 		if err != nil {
 			if err == gocb.ErrNoResult {
-				return false, errors.New("article does not exist") //it should be checked later
+				return &returnValue, errors.New("article does not exist") //it should be checked later
 			}
 			return nil, err
 		}
 	}
 
-	if id != "" || id != nil {
-		return true, nil
+	if id != "" {
+		returnValue = true
 	}
 
-	return false, nil
+	return &returnValue, nil
 }
 
 func (a *article) UpdateArticle(article models.Article) error {
 	_, err := a.session.Query(
 		queries.UpdateArticleQuery,
-		&gocb.QueryOptions{PositionaParameters: []interface{}{
+		&gocb.QueryOptions{PositionalParameters: []interface{}{
 			article.Title,
 			article.Status,
 			article.Summery,

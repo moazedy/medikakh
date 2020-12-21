@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"medikakh/domain/models"
-
+	"errors"
 	"github.com/couchbase/gocb/v2"
+	"medikakh/domain/models"
+	"medikakh/repository/queries"
 )
 
 type VideoRepo interface {
@@ -18,7 +19,7 @@ type VideoRepo interface {
 	UpdateVideo(video models.Video) error
 	GetVideoStatus(id string) (*string, error)
 	GetAllVideos() ([]models.Video, error)
-	GetCategorySubCategories(category string) ([]string, error) // needs to be thougt a bout ...
+	//GetCategorySubCategories(category string) ([]string, error) // needs to be thougt a bout ...
 }
 
 type video struct {
@@ -47,7 +48,7 @@ func (v *video) Save(video models.Video) error {
 }
 
 func (v *video) GetVideoById(id string) (*models.Video, error) {
-	res, err := a.session.Query(
+	res, err := v.session.Query(
 		queries.GetVideoByIdQuery,
 		&gocb.QueryOptions{NamedParameters: map[string]interface{}{
 			"id": id,
@@ -74,7 +75,7 @@ func (v *video) GetVideoById(id string) (*models.Video, error) {
 }
 
 func (v *video) GetVideoByTitle(title string) (*models.Video, error) {
-	res, err := a.session.Query(
+	res, err := v.session.Query(
 		queries.GetVideoByTitleQuery,
 		&gocb.QueryOptions{NamedParameters: map[string]interface{}{
 			"title": title,
@@ -113,15 +114,15 @@ func (v *video) GetVideoId(title string) (*string, error) {
 		return nil, err
 	}
 
-	var title string
+	var id string
 	for res.Next() {
-		err = res.Row(&title)
+		err = res.Row(&id)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &title, nil
+	return &id, nil
 }
 
 func (v *video) GetVideoCategory(id string) (*string, error) {
@@ -151,7 +152,7 @@ func (v *video) GetVideoCategory(id string) (*string, error) {
 
 func (v *video) GetVideoSubCategory(id string) (*string, error) {
 	res, err := v.session.Query(
-		queries.GetVideoSubCategory,
+		queries.GetVideoSubCategoryQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
@@ -182,7 +183,7 @@ func (v *video) GetVideosByCategory(cat string) ([]models.Video, error) {
 		return nil, err
 	}
 
-	var viedos []models.Video
+	var videos []models.Video
 	for res.Next() {
 		var video models.Video
 		err = res.Row(&video)
