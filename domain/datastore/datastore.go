@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/couchbase/gocb"
+	"github.com/couchbase/gocb/v2"
 )
 
 func NewCouchbaseSession() (*gocb.Cluster, error) {
