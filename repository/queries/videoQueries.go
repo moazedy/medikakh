@@ -23,4 +23,6 @@ const (
 	GetVideoStatusQuery = `SELECT videos.status FROM videos WHERE meta().id= $1`
 
 	GetAllVideosQuery = `SELECT * FROM videos`
+
+	GetVideoBySubCategoryQuery = `SELECT * FROM videos WHERE videos.category= $1 AND videos.sub_category=$2`
 )

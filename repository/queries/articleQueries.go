@@ -15,9 +15,9 @@ const (
 
 	ReadArticleSummeryQuery = `SELECT articles.summery FROM articles WHRE meta().id=$1`
 
-	ReadArticleContentQuery = `SELECT articles.content FROM articles WHRE meta().id=$1`
+	ReadArticleClinicalFeaturesQuery = `SELECT articles.clinical_features FROM articles WHRE meta().id=$1`
 
-	ReadArticleResultQuery = `SELECT articles.result FROM articles WHRE meta().id=$1`
+	ReadArticleEtiologyQuery = `SELECT articles.etiology FROM articles WHRE meta().id=$1`
 
 	DeleteArticleQuery = `DELETE FROM articles WHERE meta().id= $1`
 
@@ -25,5 +25,23 @@ const (
 
 	IsArticleExistsQuery = `SELECT meta().id FROM articles WHERE articles.title = $1`
 
-	UpdateArticleQuery = `UPDATE articles SET title=$1 status=$2 summery=$3 content=$4 result=$5 category=$6 sub_category=$7 WHERE meta().id = $8`
+	UpdateArticleQuery = `UPDATE articles SET title=$1 status=$2 summary=$3 etiology=$4 clinical_featuers=$5 `+ 
+	` diagnostics=$6 treatment=$7 complications=$8 prevention=$9 references=$10 category=$11 sub_category=$12 `+
+	` WHERE meta().id = $13`
+
+	ReadArticleDiagnostics = `SELECT articles.diagnostics FROM articles WHERE meta().id = $1`
+
+	ReadArticleTreatment = `SELECT articles.treatment FROM articles WHERE meta().id = $1`
+
+	ReadArticleComplicationsQuery = `SELECT articles.complications FROM articles WHERE meta().id = $1`
+
+	ReadArticlePreventionQuery = `SELECT articles.prevention FROM articles WHERE meta().id = $1`
+
+	ReadArticleReferencesQeury = `SELECT articles.references FROM articles WHERE meta().id = $1`
+
+	GetArticlesByCategoreyQuery = `SELECT	* FROM articles WHERE articles.category=$1`
+
+	GetAllArticlesQuery = `SELECT	* FROM articles `
+
+	GetArticlesBySubCategoryQuery = `SELECT	* FROM articles WHERE articles.category=$1 AND articles.sub_category=$2`
 )

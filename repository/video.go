@@ -19,7 +19,7 @@ type VideoRepo interface {
 	UpdateVideo(video models.Video) error
 	GetVideoStatus(id string) (*string, error)
 	GetAllVideos() ([]models.Video, error)
-	//GetCategorySubCategories(category string) ([]string, error) // needs to be thougt a bout ...
+	GetVideoBySubCategory(cat, subCat string) ([]models.Video, error)
 }
 
 type video struct {
@@ -280,4 +280,32 @@ func (v *video) GetAllVideos() ([]models.Video, error) {
 	}
 
 	return videos, nil
+}
+
+func (v *video) GetVideoBySubCategory(cat, subCat string) ([]models.Video, error) {
+	res, err := v.session.Query(
+		queries.GetVideoBySubCategoryQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{cat, subCat}},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var videos []models.Video
+	for res.Next() {
+		var video models.Video
+		err = res.Row(&video)
+		if err != nil {
+			if err == gocb.ErrNoResult {
+				return videos, nil
+			}
+
+			return nil, err
+		}
+
+		videos = append(videos, video)
+	}
+
+	return videos, nil
+
 }
