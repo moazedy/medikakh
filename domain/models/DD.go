@@ -1,7 +1,9 @@
 package models
 
+import "github.com/google/uuid"
+
 type DDmodel struct {
-	Id      string   `json:"id"`
-	Title   string   `json:"title"`
-	Content []string `json:"content"`
+	Id      uuid.UUID `json:"id"`
+	Title   string    `json:"title"`
+	Content []string  `json:"content"`
 }
