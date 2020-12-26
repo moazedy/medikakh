@@ -21,7 +21,7 @@ type article struct {
 
 func NewArticleLogic(logic repository.ArticleRepo) ArticleLogic {
 	a := new(article)
-	a.logic = logic
+	a.repo = logic
 	return a
 }
 
