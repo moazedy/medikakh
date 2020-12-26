@@ -27,7 +27,7 @@ func NewUserLogic(repo repository.UserRepo) UserLogic {
 
 func (u *user) Register(username, password, role string) error {
 
-	roleCorrectness := checkForRoleStatmentCorrection(role)
+	roleCorrectness := checkForRoleStatmentCorrectness(role)
 	if !roleCorrectness {
 		return errors.New("role statment is invalid")
 	}
