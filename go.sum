@@ -1,3 +1,5 @@
+github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
+github.com/casbin/casbin v1.9.1/go.mod h1:z8uPsfBJGUsnkagrt3G8QvjgTKFMBJ32UP8HpZllfog=
 github.com/couchbase/gocb/v2 v2.2.0 h1:cuu09G4ltU9r1nuooxmVRf9oOWn1O2dagJZ8Gw1MLsU=
 github.com/couchbase/gocb/v2 v2.2.0/go.mod h1:3D9lwKlaZFTbQk2Pw0OmfqIXuhmYSCVg0zIljY3ecgo=
 github.com/couchbase/gocbcore/v9 v9.1.0 h1:s84WPKSuyg6xs8iVWOXCJXTd0HKG2cvj5QDIGW/N6BM=
