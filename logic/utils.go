@@ -2,7 +2,7 @@ package logic
 
 import "errors"
 
-func checkForRoleStatmentCorrection(role string) bool {
+func checkForRoleStatmentCorrectness(role string) bool {
 	switch role {
 	case "bronze":
 		return true
