@@ -2,17 +2,19 @@ package logic
 
 import (
 	"errors"
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"medikakh/domain/models"
 	"medikakh/repository"
 	"medikakh/service/payment"
 	"time"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserLogic interface {
 	Register(username, password, role string) error
 	ReadUser(username string) (*models.User, error)
+	RevivalAcount(username, role string) error
 }
 
 type user struct {
@@ -91,4 +93,46 @@ func (u *user) ReadUser(username string) (*models.User, error) {
 	}
 
 	return user, nil
+}
+
+func (u *user) RevivalAcount(username, role string) error {
+	userExistance, err := u.repo.IsUsernameExists(username)
+	if err != nil {
+		return err
+	}
+	if !*userExistance {
+		return errors.New("user does not exists !")
+	}
+
+	oldUser, err := u.repo.ReadUserByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	timeExpieration, err := CheckingTimeExpiration(oldUser.Role, oldUser.CreatedAt)
+	if err != nil {
+		return nil
+	}
+	if !*timeExpieration {
+		return errors.New("the acount has not been expierd yet")
+	}
+
+	roleCorrectness := checkForRoleStatmentCorrectness(role)
+	if !roleCorrectness {
+		return errors.New("role statment is invalid")
+	}
+
+	ok := payment.RedirectToPay(role)
+	if !ok {
+		return errors.New("error in payment")
+	}
+
+	oldUser.Role = role
+	oldUser.CreatedAt = time.Now()
+	err = u.repo.UpdateUser(*oldUser)
+	if err != nil {
+		return errors.New("error on updating user")
+	}
+
+	return nil
 }
