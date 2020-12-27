@@ -1,6 +1,9 @@
 package logic
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 func checkForRoleStatmentCorrectness(role string) bool {
 	switch role {
@@ -45,4 +48,36 @@ func checkPasswordValueValidation(pass string) error {
 	}
 
 	return nil
+}
+
+// GetRolePeriod returns number of every role's day of trail
+func GetRolePeriod(role string) (int, error) {
+	switch role {
+	case "bronze":
+		return 30, nil
+	case "silver":
+		return 90, nil
+	case "gold":
+		return 180, nil
+	default:
+		return 0, errors.New("role value is incorrect")
+	}
+}
+
+func CheckingTimeExpiration(role string, createdAt time.Time) (*bool, error) {
+	days, err := GetRolePeriod(role)
+	if err != nil {
+		return nil, err
+	}
+
+	var exp bool
+	hours := time.Duration(days * 24)
+	expTime := createdAt.Add(time.Hour * hours)
+	if expTime.After(time.Now()) {
+		return &exp, nil
+	}
+
+	exp = true
+	return &exp, nil
+
 }
