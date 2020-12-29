@@ -2,19 +2,21 @@ package logic
 
 import (
 	"errors"
+	"fmt"
 	"medikakh/domain/models"
 	"medikakh/repository"
 	"medikakh/service/payment"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserLogic interface {
-	Register(username, password, role string) error
+	Register(c *gin.Context, username, password, role, email string) error
 	ReadUser(username string) (*models.User, error)
-	RevivalAcount(username, role string) error
+	RevivalAcount(c *gin.Context, username, role, email string) error
 }
 
 type user struct {
@@ -27,7 +29,7 @@ func NewUserLogic(repo repository.UserRepo) UserLogic {
 	return u
 }
 
-func (u *user) Register(username, password, role string) error {
+func (u *user) Register(c *gin.Context, username, password, role, email string) error {
 
 	roleCorrectness := checkForRoleStatmentCorrectness(role)
 	if !roleCorrectness {
@@ -43,15 +45,18 @@ func (u *user) Register(username, password, role string) error {
 	if err != nil {
 		return err
 	}
-
-	paymentResult := payment.RedirectToPay(role)
-	if !paymentResult {
-		return errors.New("error in payment")
+	// todo checking email value validation
+	paymentResult, err := payment.RedirectToPay(c, role, email)
+	if !paymentResult || err != nil {
+		return err
 	}
 
 	userExistance, err := u.repo.IsUsernameExists(username)
-	if *userExistance {
-		return errors.New("username alredy exists")
+	if err != nil {
+		return err
+	}
+	if userExistance {
+		return errors.New("user alredy exists")
 	}
 
 	var newUser models.User
@@ -83,8 +88,8 @@ func (u *user) ReadUser(username string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !*userExistance {
-		return nil, errors.New("username does not exist !")
+	if !userExistance {
+		return nil, errors.New("user does not exist")
 	}
 
 	user, err := u.repo.ReadUserByUsername(username)
@@ -95,13 +100,13 @@ func (u *user) ReadUser(username string) (*models.User, error) {
 	return user, nil
 }
 
-func (u *user) RevivalAcount(username, role string) error {
+func (u *user) RevivalAcount(c *gin.Context, username, role, email string) error {
 	userExistance, err := u.repo.IsUsernameExists(username)
 	if err != nil {
 		return err
 	}
-	if !*userExistance {
-		return errors.New("user does not exists !")
+	if !userExistance {
+		return errors.New("user does not exist")
 	}
 
 	oldUser, err := u.repo.ReadUserByUsername(username)
@@ -122,8 +127,9 @@ func (u *user) RevivalAcount(username, role string) error {
 		return errors.New("role statment is invalid")
 	}
 
-	ok := payment.RedirectToPay(role)
+	ok, err := payment.RedirectToPay(c, role, email)
 	if !ok {
+		fmt.Println(err)
 		return errors.New("error in payment")
 	}
 

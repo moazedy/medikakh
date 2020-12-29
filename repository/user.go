@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"log"
 	"medikakh/domain/models"
 	"medikakh/repository/queries"
 
@@ -17,7 +18,7 @@ type UserRepo interface {
 	GetUserPassword(Id string) (*string, error)
 	GetUserRole(Id string) (*string, error)
 	GetUserIdByUsername(username string) (*string, error)
-	IsUsernameExists(username string) (*bool, error)
+	IsUsernameExists(username string) (bool, error)
 }
 
 type user struct {
@@ -41,6 +42,7 @@ func (u *user) Register(user models.User) error {
 		},
 	)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -193,29 +195,31 @@ func (u *user) UpdateUser(newUser models.User) error {
 	return nil
 }
 
-func (u *user) IsUsernameExists(username string) (*bool, error) {
+func (u *user) IsUsernameExists(username string) (bool, error) {
+
 	res, err := u.session.Query(
 		queries.IsUsernameExistsQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{username}},
 	)
 	if err != nil {
-		return nil, errors.New("error on serching for specific username")
+		log.Println(err)
+		return false, errors.New("error on serching for specific username")
 	}
-	var returnValue bool
-	var id string
+	var newUser models.User
 	for res.Next() {
-		err = res.Row(&id)
+		err = res.Row(&newUser)
 		if err != nil {
+			log.Println(err)
 			if err == gocb.ErrNoResult {
-				return &returnValue, errors.New("user does not exist") // it should be checked later
+				return false, nil
 			}
-			return nil, err
+			return false, err
 		}
 	}
 
-	if id != "" {
-		returnValue = true
+	if newUser.Username != "" {
+		return true, nil
 	}
 
-	return &returnValue, nil
+	return false, nil
 }

@@ -19,7 +19,7 @@ func NewCouchbaseSession() (*gocb.Cluster, error) {
 		panic(err)
 	}
 	err = cluster.WaitUntilReady(
-		time.Second,
+		10*time.Second,
 		&gocb.WaitUntilReadyOptions{
 			DesiredState: gocb.ClusterStateOnline,
 		},

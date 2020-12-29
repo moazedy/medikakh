@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"medikakh/domain/models"
+	"log"
 	"medikakh/logic"
 	"net/http"
 
@@ -25,12 +25,14 @@ func NewUserController(logic logic.UserLogic) UserController {
 
 func (u *user) Register(c *gin.Context) {
 
-	var userInfo models.UserRegisterationRequest
-	c.BindJSON(&userInfo)
+	//	var userInfo models.UserRegisterationRequest
+	//	c.BindJSON(&userInfo)
+	//	err := u.logic.Register(c, userInfo.Username, userInfo.Password, userInfo.Role, userInfo.Email)
 
-	err := u.logic.Register(userInfo.Username, userInfo.Password, userInfo.Role)
+	err := u.logic.Register(c, "fardin", "54321", "silver", "mmaa@gmail.com")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err) // error handling needs to be implemented specially later
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, err.Error()) // error handling needs to be implemented specially later
 		return
 	}
 
