@@ -2,9 +2,9 @@ package datastore
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/couchbase/gocb/v2"
+	"github.com/go-redis/redis"
+	"time"
 )
 
 func NewCouchbaseSession() (*gocb.Cluster, error) {
@@ -35,4 +35,17 @@ func NewCouchbaseSession() (*gocb.Cluster, error) {
 	fmt.Println("db ping success ")
 
 	return cluster, nil
+}
+
+func NewRedisDbConnection() *redis.Client {
+	redisDB := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+
+  
+
+	return redisDB
+
 }

@@ -14,9 +14,10 @@ import (
 )
 
 type UserLogic interface {
-	Register(c *gin.Context, username, password, role, email string) error
+	Register(username, password, role, email string) error
 	ReadUser(username string) (*models.User, error)
 	RevivalAcount(c *gin.Context, username, role, email string) error
+	IsUserExists(username string) error
 }
 
 type user struct {
@@ -29,7 +30,7 @@ func NewUserLogic(repo repository.UserRepo) UserLogic {
 	return u
 }
 
-func (u *user) Register(c *gin.Context, username, password, role, email string) error {
+func (u *user) Register(username, password, role, email string) error {
 
 	roleCorrectness := checkForRoleStatmentCorrectness(role)
 	if !roleCorrectness {
@@ -43,11 +44,6 @@ func (u *user) Register(c *gin.Context, username, password, role, email string) 
 
 	err = checkPasswordValueValidation(password)
 	if err != nil {
-		return err
-	}
-	// todo checking email value validation
-	paymentResult, err := payment.RedirectToPay(c, role, email)
-	if !paymentResult || err != nil {
 		return err
 	}
 
@@ -141,4 +137,17 @@ func (u *user) RevivalAcount(c *gin.Context, username, role, email string) error
 	}
 
 	return nil
+}
+
+func (u *user) IsUserExists(username string) error {
+	userExistance, err := u.repo.IsUsernameExists(username)
+	if err != nil {
+		return err
+	}
+	if !userExistance {
+		return errors.New("user does not exist")
+	}
+
+	return nil
+
 }
