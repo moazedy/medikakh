@@ -2,6 +2,7 @@ package logic
 
 import (
 	"errors"
+	"medikakh/application/utils"
 	"medikakh/domain/constants"
 	"medikakh/domain/models"
 	"medikakh/repository"
@@ -13,6 +14,7 @@ import (
 type ArticleLogic interface {
 	SaveArticle(userRole string, art models.Article) error
 	ReadArticle(userRole, articleTitle string) (*models.Article, error)
+	DeleteArticle(userRole, title string) error
 }
 
 type article struct {
@@ -26,8 +28,13 @@ func NewArticleLogic(logic repository.ArticleRepo) ArticleLogic {
 }
 
 func (a *article) SaveArticle(userRole string, art models.Article) error {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return errors.New("role statment invalid")
+	}
+
 	// checking for user premissins on saving articles
-	ok := authorization.IsPremissioned(userRole, constants.ArticleObject, constants.SaveAction)
+	ok := authorization.IsPermissioned(userRole, constants.ArticleObject, constants.SaveAction)
 	if !ok {
 		return errors.New("premission denied")
 	}
@@ -39,7 +46,12 @@ func (a *article) SaveArticle(userRole string, art models.Article) error {
 }
 
 func (a *article) ReadArticle(userRole, articleTitle string) (*models.Article, error) {
-	ok := authorization.IsPremissioned(userRole, constants.ArticleObject, constants.ReadAction)
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return nil, errors.New("role statment invalid")
+	}
+
+	ok := authorization.IsPermissioned(userRole, constants.ArticleObject, constants.ReadAction)
 	if !ok {
 		return nil, errors.New("premission denied")
 	}
@@ -50,4 +62,28 @@ func (a *article) ReadArticle(userRole, articleTitle string) (*models.Article, e
 	}
 
 	return res, nil
+}
+
+func (a *article) DeleteArticle(userRole, title string) error {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return errors.New("role statment invalid")
+	}
+
+	permissionOk := authorization.IsPermissioned(userRole, constants.ArticleObject, constants.DeleteAction)
+	if !permissionOk {
+		return errors.New("unauthorized user")
+	}
+
+	id, err := a.repo.GetArticleId(title)
+	if err != nil {
+		return err
+	}
+
+	err = a.repo.DeleteArticle(*id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

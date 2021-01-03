@@ -6,7 +6,7 @@ import (
 	"github.com/casbin/casbin"
 )
 
-func IsPremissioned(role, object, action string) bool {
+func IsPermissioned(role, object, action string) bool {
 	enforcer := casbin.NewEnforcer("auth_model.conf", "policy.csv")
 	res := enforcer.Enforce(role, object, action)
 

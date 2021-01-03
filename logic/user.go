@@ -3,6 +3,7 @@ package logic
 import (
 	"errors"
 	"fmt"
+	"medikakh/application/utils"
 	"medikakh/domain/models"
 	"medikakh/repository"
 	"medikakh/service/payment"
@@ -18,6 +19,7 @@ type UserLogic interface {
 	ReadUser(username string) (*models.User, error)
 	RevivalAcount(c *gin.Context, username, role, email string) error
 	IsUserExists(username string) error
+	GetUserRole(username string) (*string, error)
 }
 
 type user struct {
@@ -149,5 +151,25 @@ func (u *user) IsUserExists(username string) error {
 	}
 
 	return nil
+
+}
+
+func (u *user) GetUserRole(username string) (*string, error) {
+	err := utils.CheckUsernameValueValidation(username)
+	if err != nil {
+		return nil, err
+	}
+
+	userId, err := u.repo.GetUserIdByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	userRole, err := u.repo.GetUserRole(*userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return userRole, nil
 
 }
