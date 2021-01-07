@@ -44,8 +44,6 @@ func NewRedisDbConnection() *redis.Client {
 		DB:       0,
 	})
 
-  
-
 	return redisDB
 
 }

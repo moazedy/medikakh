@@ -15,6 +15,7 @@ type ArticleLogic interface {
 	SaveArticle(userRole string, art models.Article) error
 	ReadArticle(userRole, articleTitle string) (*models.Article, error)
 	DeleteArticle(userRole, title string) error
+	GetArticleStatus(title string) (*string, error)
 }
 
 type article struct {
@@ -51,9 +52,17 @@ func (a *article) ReadArticle(userRole, articleTitle string) (*models.Article, e
 		return nil, errors.New("role statment invalid")
 	}
 
-	ok := authorization.IsPermissioned(userRole, constants.ArticleObject, constants.ReadAction)
-	if !ok {
-		return nil, errors.New("premission denied")
+	status, err := a.GetArticleStatus(articleTitle)
+	if err != nil {
+		return nil, err
+	}
+
+	if *status == "private" {
+		ok := authorization.IsPermissioned(userRole, constants.ArticleObject, constants.ReadAction)
+		if !ok {
+			return nil, errors.New("premission denied")
+		}
+
 	}
 
 	res, err := a.repo.ReadArticleByTitle(articleTitle)
@@ -86,4 +95,17 @@ func (a *article) DeleteArticle(userRole, title string) error {
 	}
 
 	return nil
+}
+
+func (a *article) GetArticleStatus(title string) (*string, error) {
+	id, err := a.repo.GetArticleId(title)
+	if err != nil {
+		return nil, err
+	}
+	status, err := a.repo.GetArticleStatus(*id)
+	if err != nil {
+		return nil, err
+	}
+
+	return status, nil
 }

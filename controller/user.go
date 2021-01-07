@@ -18,6 +18,7 @@ type UserController interface {
 	Register(c *gin.Context)
 	ReadUser(c *gin.Context)
 	RegisterCallback(c *gin.Context)
+	GetUserId(username string) (*string, error)
 }
 
 type user struct {
@@ -173,4 +174,13 @@ func (u *user) RegisterCallback(c *gin.Context) {
 
 	c.JSON(http.StatusOK, "User seccessfully registered ref id : "+refID)
 
+}
+
+func (u *user) GetUserId(username string) (*string, error) {
+	name, err := u.logic.GetUserId(username)
+	if err != nil {
+		return nil, err
+	}
+
+	return name, nil
 }

@@ -20,6 +20,8 @@ type UserLogic interface {
 	RevivalAcount(c *gin.Context, username, role, email string) error
 	IsUserExists(username string) error
 	GetUserRole(username string) (*string, error)
+	GetUserId(username string) (*string, error)
+	GetPassword(id string) (*string, error)
 }
 
 type user struct {
@@ -172,4 +174,22 @@ func (u *user) GetUserRole(username string) (*string, error) {
 
 	return userRole, nil
 
+}
+
+func (u *user) GetUserId(username string) (*string, error) {
+	name, err := u.repo.GetUserIdByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	return name, nil
+}
+
+func (u *user) GetPassword(id string) (*string, error) {
+	pass, err := u.repo.GetUserPassword(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return pass, nil
 }
