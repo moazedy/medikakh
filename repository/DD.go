@@ -11,7 +11,7 @@ type DDrepo interface {
 	InsertData(dd models.DDmodel) error
 	ReadDataById(Id string) (*models.DDmodel, error)
 	ReadDataByTitle(title string) (*models.DDmodel, error)
-	ReadDataUsingPattern(title string) ([]models.DDmodel, error)
+	ReadDataUsingPattern(title string) (*models.DDtitles, error)
 }
 
 type dd struct {
@@ -78,7 +78,7 @@ func (d *dd) ReadDataByTitle(title string) (*models.DDmodel, error) {
 
 	return &dd, nil
 }
-func (d *dd) ReadDataUsingPattern(title string) ([]models.DDmodel, error) {
+func (d *dd) ReadDataUsingPattern(title string) (*models.DDtitles, error) {
 	pattern := title + "_%"
 	res, err := d.session.Query(
 		queries.ReadDataUsingPatternQuery,
@@ -88,19 +88,19 @@ func (d *dd) ReadDataUsingPattern(title string) ([]models.DDmodel, error) {
 		return nil, err
 	}
 
-	var dds []models.DDmodel
+	var dds models.DDtitles
 	for res.Next() {
-		var dd models.DDmodel
+		var dd models.DDtitle
 		err = res.Row(&dd)
 		if err != nil {
 			if err == gocb.ErrNoResult {
-				return dds, nil
+				return &dds, nil
 			}
 			return nil, err
 		}
 
-		dds = append(dds, dd)
+		dds.Titles = append(dds.Titles, dd)
 	}
 
-	return dds, nil
+	return &dds, nil
 }

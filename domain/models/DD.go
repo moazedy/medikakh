@@ -7,3 +7,11 @@ type DDmodel struct {
 	Title   string    `json:"title"`
 	Content []string  `json:"content"`
 }
+
+type DDtitle struct {
+	Title string `josn:"title"`
+}
+
+type DDtitles struct {
+	Titles []DDtitle `json:"titles"`
+}
