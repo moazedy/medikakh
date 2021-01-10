@@ -14,6 +14,7 @@ import (
 type VideoLogic interface {
 	Save(userRole string, vi models.Video) error
 	GetVideo(userRole, vidTitle string) (*models.Video, error)
+	Delete(userRole, vidTitle string) error
 }
 
 type video struct {
@@ -80,4 +81,27 @@ func (v *video) GetVideo(userRole, vidTitle string) (*models.Video, error) {
 
 	return wantedVideo, nil
 
+}
+
+func (v *video) Delete(userRole, vidTitle string) error {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return errors.New("role statment not valid")
+	}
+
+	permissionOk := authorization.IsPermissioned(userRole, constants.VideoObject, constants.DeleteAction)
+	if !permissionOk {
+		return errors.New("unauthorized user")
+	}
+
+	id, err := v.repo.GetVideoId(vidTitle)
+	if err != nil {
+		return err
+	}
+	err = v.repo.DeleteVideo(*id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
