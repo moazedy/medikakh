@@ -23,6 +23,11 @@ const (
 	UserObject = "user"
 )
 
+// related to dd
+const (
+	DDobject = "dd"
+)
+
 // related to role
 const (
 	BronzeUserObject    = "bronze"
