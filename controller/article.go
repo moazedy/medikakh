@@ -15,6 +15,8 @@ type ArticleController interface {
 	DeleteArticle(c *gin.Context)
 	UpdateArticle(c *gin.Context)
 	GetArticlesList(c *gin.Context)
+	// TODO:
+	// GetArticlesByCategory(c *gin.Context)
 }
 
 type article struct {

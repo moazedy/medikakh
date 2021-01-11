@@ -12,6 +12,9 @@ type VideoController interface {
 	Save(c *gin.Context)
 	Read(c *gin.Context)
 	Delete(c *gin.Context)
+	// TODO:
+	// UpdateVideo(c *gin.Context)
+	// GetVideosByCategory(c *gin.Context)
 }
 
 type video struct {
