@@ -2,7 +2,14 @@ package utils
 
 import (
 	"errors"
+	"fmt"
+	"medikakh/domain/constants"
+	"medikakh/domain/models"
+	"net/http"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 func CheckForRoleStatmentCorrectness(role string) bool {
@@ -93,4 +100,82 @@ func PaymentPrice(role string) int {
 	default:
 		return 0
 	}
+}
+
+var key = []byte(constants.JwtSecretKey)
+
+func ExtractRoleFromToken(c *gin.Context) *string {
+	tokenString, err := c.Cookie("mediKakh")
+	if err != nil {
+		fmt.Println(err)
+		if err == http.ErrNoCookie {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			guest := constants.GuestUserObject
+			return &guest
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return nil
+	}
+	claimes := new(models.Claimes)
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		claimes,
+		func(token *jwt.Token) (interface{}, error) {
+			return key, nil
+		})
+	if err != nil {
+		fmt.Println(err)
+		if err == jwt.ErrSignatureInvalid {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return nil
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return nil
+	}
+
+	if !token.Valid {
+		fmt.Println("token is invalid")
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return nil
+	}
+
+	return &claimes.UserRole
+
+}
+
+func GetCurrentUserClaimes(c *gin.Context) *models.Claimes {
+	tokenString, err := c.Cookie("mediKakh")
+	if err != nil {
+		fmt.Println(err)
+		if err == http.ErrNoCookie {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return nil
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return nil
+	}
+	claimes := new(models.Claimes)
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		claimes,
+		func(token *jwt.Token) (interface{}, error) {
+			return key, nil
+		})
+	if err != nil {
+		fmt.Println(err)
+		if err == jwt.ErrSignatureInvalid {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return nil
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return nil
+	}
+
+	if !token.Valid {
+		fmt.Println("token is invalid")
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return nil
+	}
+
+	return claimes
 }
