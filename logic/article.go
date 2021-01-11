@@ -4,6 +4,7 @@ import (
 	"errors"
 	"medikakh/application/utils"
 	"medikakh/domain/constants"
+	"medikakh/domain/datastore"
 	"medikakh/domain/models"
 	"medikakh/repository"
 	"medikakh/service/authorization"
@@ -42,8 +43,28 @@ func (a *article) SaveArticle(userRole string, art models.Article) error {
 		return errors.New("premission denied")
 	}
 
+	articleExistance, err := a.repo.IsArticleExists(art.Title)
+	if err != nil {
+		return err
+	}
+
+	if *articleExistance {
+		return errors.New("article alredy exists")
+	}
+
+	// chacking for existance of determined category in new article
+	session, err := datastore.NewCouchbaseSession()
+	if err != nil {
+		return errors.New("faild to make session with db")
+	}
+	categoryLogic := NewCategoryLogic(repository.NewCategoryRepo(session))
+	err = categoryLogic.IsCategoryExists(art.Category)
+	if err != nil {
+		return err
+	}
+
 	art.Id = uuid.New()
-	err := a.repo.Save(art)
+	err = a.repo.Save(art)
 
 	return err
 }

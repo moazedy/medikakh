@@ -4,6 +4,7 @@ import (
 	"errors"
 	"medikakh/application/utils"
 	"medikakh/domain/constants"
+	"medikakh/domain/datastore"
 	"medikakh/domain/models"
 	"medikakh/repository"
 	"medikakh/service/authorization"
@@ -45,6 +46,17 @@ func (v *video) Save(userRole string, vi models.Video) error {
 	}
 	if *videoExistance {
 		return errors.New("video alredy exists")
+	}
+
+	// chacking for existance of determined category in new article
+	session, err := datastore.NewCouchbaseSession()
+	if err != nil {
+		return errors.New("faild to make session with db")
+	}
+	categoryLogic := NewCategoryLogic(repository.NewCategoryRepo(session))
+	err = categoryLogic.IsCategoryExists(vi.Category)
+	if err != nil {
+		return err
 	}
 
 	vi.Id = uuid.New()
