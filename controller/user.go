@@ -7,6 +7,7 @@ import (
 	"medikakh/domain/datastore"
 	"medikakh/domain/models"
 	"medikakh/logic"
+	"medikakh/service/authentication"
 	"net/http"
 	"time"
 
@@ -19,6 +20,7 @@ type UserController interface {
 	ReadUser(c *gin.Context)
 	RegisterCallback(c *gin.Context)
 	GetUserId(username string) (*string, error)
+	Login(c *gin.Context)
 }
 
 type user struct {
@@ -183,4 +185,8 @@ func (u *user) GetUserId(username string) (*string, error) {
 	}
 
 	return name, nil
+}
+
+func (u user) Login(c *gin.Context) {
+	authentication.Login(c)
 }

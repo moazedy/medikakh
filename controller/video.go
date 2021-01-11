@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"medikakh/application/utils"
 	"medikakh/domain/models"
 	"medikakh/logic"
 	"net/http"
@@ -35,7 +36,13 @@ func (v *video) Save(c *gin.Context) {
 		return
 	}
 
-	err = v.logic.Save("", newVideo)
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	err = v.logic.Save(*role, newVideo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -47,7 +54,13 @@ func (v *video) Save(c *gin.Context) {
 func (v *video) Read(c *gin.Context) {
 	videoTitle := c.Param("video_title")
 
-	newVideo, err := v.logic.GetVideo("", videoTitle)
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	newVideo, err := v.logic.GetVideo(*role, videoTitle)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -59,7 +72,13 @@ func (v *video) Read(c *gin.Context) {
 func (v *video) Delete(c *gin.Context) {
 	title := c.Param("title")
 
-	err := v.logic.Delete("", title)
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	err := v.logic.Delete(*role, title)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return

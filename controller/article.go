@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"medikakh/application/utils"
 	"medikakh/domain/models"
 	"medikakh/logic"
 	"net/http"
@@ -38,7 +39,12 @@ func (a *article) Save(c *gin.Context) {
 		return
 	}
 
-	err = a.logic.SaveArticle("", newArticle) // need to be fixed
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	err = a.logic.SaveArticle(*role, newArticle) // need to be fixed
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -54,7 +60,13 @@ func (a *article) ReadArticle(c *gin.Context) {
 		return
 	}
 
-	newArticle, err := a.logic.ReadArticle("", title) // need to be fixed
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	newArticle, err := a.logic.ReadArticle(*role, title) // need to be fixed
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -71,7 +83,13 @@ func (a *article) DeleteArticle(c *gin.Context) {
 		return
 	}
 
-	err := a.logic.DeleteArticle("", title)
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	err := a.logic.DeleteArticle(*role, title)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
@@ -89,7 +107,13 @@ func (a *article) UpdateArticle(c *gin.Context) {
 		return
 	}
 
-	err = a.logic.UpdateArticle("", art)
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	err = a.logic.UpdateArticle(*role, art)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "error while updating article"})
 		return
@@ -99,7 +123,14 @@ func (a *article) UpdateArticle(c *gin.Context) {
 }
 
 func (a *article) GetArticlesList(c *gin.Context) {
-	titles, err := a.logic.GetArticlesList("")
+
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	titles, err := a.logic.GetArticlesList(*role)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
