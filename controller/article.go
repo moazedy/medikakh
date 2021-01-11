@@ -13,6 +13,8 @@ type ArticleController interface {
 	Save(c *gin.Context)
 	ReadArticle(c *gin.Context)
 	DeleteArticle(c *gin.Context)
+	UpdateArticle(c *gin.Context)
+	GetArticlesList(c *gin.Context)
 }
 
 type article struct {
@@ -75,4 +77,31 @@ func (a *article) DeleteArticle(c *gin.Context) {
 
 	c.JSON(http.StatusOK, "article seccessfuly deleted")
 
+}
+
+func (a *article) UpdateArticle(c *gin.Context) {
+	var art models.ArticleUpdate
+	err := c.BindJSON(&art)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "error in parsing json update request"})
+		return
+	}
+
+	err = a.logic.UpdateArticle("", art)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error while updating article"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "article updated"})
+}
+
+func (a *article) GetArticlesList(c *gin.Context) {
+	titles, err := a.logic.GetArticlesList("")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, titles)
 }
