@@ -16,6 +16,7 @@ type CategoryLogic interface {
 	GetCategory(userRole, catTitle string) (*models.Category, error)
 	GetCategories(userRole string) ([]models.Category, error)
 	GetCategorySubCategories(userRole, catTitle string) ([]string, error)
+	IsCategoryExists(name string) error
 }
 
 type category struct {
@@ -113,4 +114,17 @@ func (c *category) GetCategorySubCategories(userRole, catTitle string) ([]string
 	}
 
 	return subs, nil
+}
+
+func (c *category) IsCategoryExists(name string) error {
+	if name == "" {
+		return errors.New("category name can not be empty")
+	}
+
+	err := c.repo.IsCategoryExists(name)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
