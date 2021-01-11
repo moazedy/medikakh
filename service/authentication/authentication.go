@@ -1,35 +1,23 @@
 package authentication
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
+	"medikakh/domain/constants"
 	"medikakh/domain/datastore"
+	"medikakh/domain/models"
 	"medikakh/logic"
 	"medikakh/repository"
 	"net/http"
 	"time"
 
+	"github.com/couchbase/gocb/v2"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var key = []byte("secret key")
-
-type Cridentials struct {
-	Username string `json:"username"`
-	Password string `json :"password"`
-}
-
-// Claimes are infos that being stored in jwt
-type Claimes struct {
-	Userid    uuid.UUID `json:"userid"`
-	UserRole  string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-	jwt.StandardClaims
-}
+var key = []byte(constants.JwtSecretKey)
 
 func Login(c *gin.Context) {
 	dbsession, err := datastore.NewCouchbaseSession()
@@ -41,7 +29,7 @@ func Login(c *gin.Context) {
 
 	userLogic := logic.NewUserLogic(repository.NewUserRpo(dbsession))
 
-	cridentials := new(Cridentials)
+	cridentials := new(models.Cridentials)
 	err = c.BindJSON(&cridentials)
 	if err != nil {
 		fmt.Println(err)
@@ -57,7 +45,7 @@ func Login(c *gin.Context) {
 	err = userLogic.IsUserExists(cridentials.Username)
 	if err != nil {
 		fmt.Println(err)
-		if err == sql.ErrNoRows {
+		if err == gocb.ErrNoResult {
 			c.AbortWithError(http.StatusNotFound, errors.New("user does not exist"))
 			return
 		}
@@ -68,7 +56,7 @@ func Login(c *gin.Context) {
 	user, err := userLogic.ReadUser(cridentials.Username)
 	if err != nil {
 		fmt.Println(err)
-		if err == sql.ErrNoRows {
+		if err == gocb.ErrNoResult {
 			c.AbortWithError(http.StatusNotFound, errors.New("user does not exist"))
 			return
 		}
@@ -78,7 +66,7 @@ func Login(c *gin.Context) {
 	passPointer, err := userLogic.GetPassword(user.Id.String())
 	if err != nil {
 		fmt.Println(err)
-		if err == sql.ErrNoRows {
+		if err == gocb.ErrNoResult {
 			c.AbortWithError(http.StatusNotFound, errors.New("user does not exist"))
 			return
 		}
@@ -94,7 +82,7 @@ func Login(c *gin.Context) {
 	}
 	expTime := time.Now().Add(5 * time.Minute)
 
-	claimes := &Claimes{
+	claimes := &models.Claimes{
 		Userid:    user.Id,
 		UserRole:  user.Role,
 		CreatedAt: user.CreatedAt,
@@ -137,7 +125,7 @@ func Authenticlation(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	claimes := new(Claimes)
+	claimes := new(models.Claimes)
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		claimes,
@@ -173,7 +161,7 @@ func Refresh(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	claime := new(Claimes)
+	claime := new(models.Claimes)
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		claime,
