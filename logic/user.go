@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"medikakh/application/utils"
+	"medikakh/domain/constants"
 	"medikakh/domain/models"
 	"medikakh/repository"
+	"medikakh/service/authorization"
 	"medikakh/service/payment"
 	"time"
 
@@ -16,12 +18,12 @@ import (
 
 type UserLogic interface {
 	Register(username, password, role, email string) error
-	ReadUser(username string) (*models.User, error)
+	ReadUser(userRole, userId, username string) (*models.User, error)
 	RevivalAcount(c *gin.Context, username, role, email string) error
-	IsUserExists(username string) error
-	GetUserRole(username string) (*string, error)
-	GetUserId(username string) (*string, error)
-	GetPassword(id string) (*string, error)
+	IsUserExists(userRole, username string) error
+	GetUserRole(userRole, username string) (*string, error)
+	GetUserId(userRole, username string) (*string, error)
+	GetPassword(userRole, RequesterUserId, id string) (*string, error)
 }
 
 type user struct {
@@ -78,10 +80,20 @@ func (u *user) Register(username, password, role, email string) error {
 	return nil
 }
 
-func (u *user) ReadUser(username string) (*models.User, error) {
+func (u *user) ReadUser(userRole, userId, username string) (*models.User, error) {
 	err := checkUsernameValueValidation(username)
 	if err != nil {
 		return nil, err
+	}
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return nil, errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.ReadAction)
+	if !ok {
+		return nil, errors.New("premission denied")
 	}
 
 	userExistance, err := u.repo.IsUsernameExists(username)
@@ -97,10 +109,28 @@ func (u *user) ReadUser(username string) (*models.User, error) {
 		return nil, err
 	}
 
+	if userRole != "admin" {
+		if userId != user.Id.String() {
+			return nil, errors.New("no permissions on reading this user")
+		}
+	}
+
 	return user, nil
 }
 
+// RevivalAcount is been used when some acount is being expired and user wants to revivals it
 func (u *user) RevivalAcount(c *gin.Context, username, role, email string) error {
+	err := checkUsernameValueValidation(username)
+	if err != nil {
+		return err
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(role, constants.UserObject, constants.UpdateAction)
+	if !ok {
+		return errors.New("premission denied")
+	}
+
 	userExistance, err := u.repo.IsUsernameExists(username)
 	if err != nil {
 		return err
@@ -127,8 +157,8 @@ func (u *user) RevivalAcount(c *gin.Context, username, role, email string) error
 		return errors.New("role statment is invalid")
 	}
 
-	ok, err := payment.RedirectToPay(c, role, email)
-	if !ok {
+	Ok, err := payment.RedirectToPay(c, role, email)
+	if !Ok {
 		fmt.Println(err)
 		return errors.New("error in payment")
 	}
@@ -143,7 +173,18 @@ func (u *user) RevivalAcount(c *gin.Context, username, role, email string) error
 	return nil
 }
 
-func (u *user) IsUserExists(username string) error {
+func (u *user) IsUserExists(userRole, username string) error {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.ReadAction)
+	if !ok {
+		return errors.New("premission denied")
+	}
+
 	userExistance, err := u.repo.IsUsernameExists(username)
 	if err != nil {
 		return err
@@ -156,7 +197,18 @@ func (u *user) IsUserExists(username string) error {
 
 }
 
-func (u *user) GetUserRole(username string) (*string, error) {
+func (u *user) GetUserRole(userRole, username string) (*string, error) {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return nil, errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.ReadAction)
+	if !ok {
+		return nil, errors.New("premission denied")
+	}
+
 	err := utils.CheckUsernameValueValidation(username)
 	if err != nil {
 		return nil, err
@@ -167,16 +219,27 @@ func (u *user) GetUserRole(username string) (*string, error) {
 		return nil, err
 	}
 
-	userRole, err := u.repo.GetUserRole(*userId)
+	Role, err := u.repo.GetUserRole(*userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return userRole, nil
+	return Role, nil
 
 }
 
-func (u *user) GetUserId(username string) (*string, error) {
+func (u *user) GetUserId(userRole, username string) (*string, error) {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return nil, errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.ReadAction)
+	if !ok {
+		return nil, errors.New("premission denied")
+	}
+
 	name, err := u.repo.GetUserIdByUsername(username)
 	if err != nil {
 		return nil, err
@@ -185,7 +248,24 @@ func (u *user) GetUserId(username string) (*string, error) {
 	return name, nil
 }
 
-func (u *user) GetPassword(id string) (*string, error) {
+func (u *user) GetPassword(userRole, requesterUserId, id string) (*string, error) {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return nil, errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.ReadAction)
+	if !ok {
+		return nil, errors.New("premission denied")
+	}
+
+	if userRole != "admin" {
+		if requesterUserId != id {
+			return nil, errors.New("permission denied")
+		}
+	}
+
 	pass, err := u.repo.GetUserPassword(id)
 	if err != nil {
 		return nil, err
