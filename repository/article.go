@@ -29,6 +29,7 @@ type ArticleRepo interface {
 	GetArticlesByCategory(cat string) ([]models.Article, error)
 	GetAllArticles() ([]models.Article, error)
 	GetArticlesBySubCategory(cat, subCat string) ([]models.Article, error)
+	GetArticlesList() ([]string, error)
 }
 
 type article struct {
@@ -545,4 +546,31 @@ func (a *article) GetArticlesBySubCategory(cat, subCat string) ([]models.Article
 	}
 
 	return articles, nil
+}
+
+func (a *article) GetArticlesList() ([]string, error) {
+	res, err := a.session.Query(
+		queries.GetArticlesTitleListQuery,
+		nil,
+	)
+	if err != nil {
+		return nil, errors.New("error while quering on db")
+	}
+
+	var titles []string
+	for res.Next() {
+		var title models.ArticleTitle
+		err := res.Row(&title)
+		if err != nil {
+			if err == gocb.ErrNoResult {
+				return titles, nil
+			}
+
+			return nil, err
+		}
+
+		titles = append(titles, title.Title)
+	}
+
+	return titles, nil
 }
