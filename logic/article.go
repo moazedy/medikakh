@@ -16,6 +16,8 @@ type ArticleLogic interface {
 	ReadArticle(userRole, articleTitle string) (*models.Article, error)
 	DeleteArticle(userRole, title string) error
 	GetArticleStatus(title string) (*string, error)
+	UpdateArticle(userRole string, art models.ArticleUpdate) error
+	GetArticlesList(userRole string) ([]string, error)
 }
 
 type article struct {
@@ -108,4 +110,123 @@ func (a *article) GetArticleStatus(title string) (*string, error) {
 	}
 
 	return status, nil
+}
+
+func (a *article) UpdateArticle(userRole string, art models.ArticleUpdate) error {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.ArticleObject, constants.UpdateAction)
+	if !ok {
+		return errors.New("premission denied")
+	}
+
+	oldArt, err := a.repo.ReadArticleById(art.Id.String())
+	if err != nil {
+		return err
+	}
+	var NewArt models.Article
+	NewArt.Id = oldArt.Id
+	if art.Title == nil {
+		NewArt.Title = oldArt.Title
+	} else {
+		NewArt.Title = *art.Title
+	}
+
+	if art.Status == nil {
+		NewArt.Status = oldArt.Status
+	} else {
+		NewArt.Status = *art.Status
+	}
+
+	if art.Summary == nil {
+		NewArt.Summary = oldArt.Summary
+	} else {
+		NewArt.Summary = *art.Summary
+	}
+
+	if art.Etiology == nil {
+		NewArt.Etiology = oldArt.Etiology
+	} else {
+		NewArt.Etiology = *art.Etiology
+	}
+
+	if art.ClinicalFeatures == nil {
+		NewArt.ClinicalFeatures = oldArt.ClinicalFeatures
+	} else {
+		NewArt.ClinicalFeatures = *art.ClinicalFeatures
+	}
+
+	if art.Diagnostics == nil {
+		NewArt.Diagnostics = oldArt.Diagnostics
+	} else {
+		NewArt.Diagnostics = *art.Diagnostics
+	}
+
+	if art.Treatment == nil {
+		NewArt.Treatment = oldArt.Treatment
+	} else {
+		NewArt.Treatment = *art.Treatment
+	}
+
+	if art.Complications == nil {
+		NewArt.Complications = oldArt.Complications
+	} else {
+		NewArt.Complications = *art.Complications
+	}
+
+	if art.Prevention == nil {
+		NewArt.Prevention = oldArt.Prevention
+	} else {
+		NewArt.Prevention = *art.Prevention
+	}
+
+	if art.References == nil {
+		NewArt.References = oldArt.References
+	} else {
+		NewArt.References = *art.References
+	}
+
+	if art.Category == nil {
+		NewArt.Category = oldArt.Category
+	} else {
+		NewArt.Category = *art.Category
+	}
+
+	if art.SubCategory == nil {
+		NewArt.SubCategory = oldArt.SubCategory
+	} else {
+		NewArt.SubCategory = *art.SubCategory
+	}
+
+	err = a.repo.UpdateArticle(NewArt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (a *article) GetArticlesList(userRole string) ([]string, error) {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return nil, errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.ArticleObject, constants.ReadAction)
+	if !ok {
+		return nil, errors.New("premission denied")
+	}
+
+	titles, err := a.repo.GetArticlesList()
+	if err != nil {
+		return nil, err
+	}
+
+	return titles, nil
 }
