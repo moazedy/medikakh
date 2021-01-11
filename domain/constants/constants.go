@@ -35,8 +35,12 @@ const (
 
 // related to role
 const (
-	BronzeUserObject    = "bronze"
-	SilverUserObject    = "silver"
-	GoldUserObject      = "gold"
-	AnonymousUserObject = "anonymous"
+	BronzeUserObject = "bronze"
+	SilverUserObject = "silver"
+	GoldUserObject   = "gold"
+	GuestUserObject  = "guest"
+)
+
+const (
+	JwtSecretKey = "secret_key"
 )
