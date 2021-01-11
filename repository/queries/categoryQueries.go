@@ -13,4 +13,6 @@ const (
 	GetCategoryIdQuery = `SELECT categories.id FROM categories WHERE categories.name = $1`
 
 	GetCategoriesQuery = `SELECT * FROM categories`
+
+	IsCategoryExistsQuery = "SELECT COUNT(*) FROM categories WHERE categories.name = $1"
 )

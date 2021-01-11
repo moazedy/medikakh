@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"medikakh/domain/models"
 	"medikakh/repository/queries"
 
@@ -14,6 +15,7 @@ type CategoryRepo interface {
 	ReadCategorySubCategories(id string) ([]string, error)
 	GetCategoryId(name string) (*string, error)
 	GetCategories() ([]models.Category, error)
+	IsCategoryExists(name string) error
 }
 
 type category struct {
@@ -148,4 +150,26 @@ func (c *category) GetCategories() ([]models.Category, error) {
 	}
 
 	return cats, nil
+}
+
+func (c *category) IsCategoryExists(name string) error {
+	res, err := c.session.Query(
+		queries.IsCategoryExistsQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{name}},
+	)
+	if err != nil {
+		return err
+	}
+
+	var count int
+	err = res.One(&count)
+	if err != nil {
+		if err == gocb.ErrNoResult {
+			return errors.New("category does not exists")
+		}
+
+		return err
+	}
+
+	return nil
 }
