@@ -16,8 +16,7 @@ type ArticleController interface {
 	DeleteArticle(c *gin.Context)
 	UpdateArticle(c *gin.Context)
 	GetArticlesList(c *gin.Context)
-	// TODO:
-	// GetArticlesByCategory(c *gin.Context)
+	GetArticlesByCategory(c *gin.Context)
 }
 
 type article struct {
@@ -41,7 +40,7 @@ func (a *article) Save(c *gin.Context) {
 
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token"})
 		return
 	}
 	err = a.logic.SaveArticle(*role, newArticle) // need to be fixed
@@ -62,7 +61,7 @@ func (a *article) ReadArticle(c *gin.Context) {
 
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token "})
 		return
 	}
 
@@ -85,7 +84,7 @@ func (a *article) DeleteArticle(c *gin.Context) {
 
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token "})
 		return
 	}
 
@@ -109,7 +108,7 @@ func (a *article) UpdateArticle(c *gin.Context) {
 
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token "})
 		return
 	}
 
@@ -126,13 +125,35 @@ func (a *article) GetArticlesList(c *gin.Context) {
 
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token"})
 		return
 	}
 
 	titles, err := a.logic.GetArticlesList(*role)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, titles)
+}
+
+func (a *article) GetArticlesByCategory(c *gin.Context) {
+	category := c.Param("category")
+	if category == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "category value can not be empty"})
+		return
+	}
+
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token "})
+		return
+	}
+
+	titles, err := a.logic.GetArticlesListByCategory(*role, category)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
 
