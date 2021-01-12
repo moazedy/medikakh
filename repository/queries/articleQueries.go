@@ -39,11 +39,11 @@ const (
 
 	ReadArticleReferencesQeury = `SELECT articles.references FROM articles WHERE meta().id = $1`
 
-	GetArticlesByCategoreyQuery = `SELECT	* FROM articles WHERE articles.category=$1`
+	GetArticlesByCategoreyQuery = `SELECT	articles.title FROM articles WHERE articles.category=$1`
 
-	GetAllArticlesQuery = `SELECT	* FROM articles `
+	GetAllArticlesQuery = `SELECT	articles.title FROM articles `
 
-	GetArticlesBySubCategoryQuery = `SELECT	* FROM articles WHERE articles.category=$1 AND articles.sub_category=$2`
+	GetArticlesBySubCategoryQuery = `SELECT	articles.title FROM articles WHERE articles.category=$1 AND articles.sub_category=$2`
 
 	GetArticlesTitleListQuery = "SELECT articles.title FROM articles"
 )

@@ -26,9 +26,9 @@ type ArticleRepo interface {
 	DeleteArticle(id string) error
 	GetArticleStatus(id string) (*string, error)
 	IsArticleExists(title string) (*bool, error)
-	GetArticlesByCategory(cat string) ([]models.Article, error)
-	GetAllArticles() ([]models.Article, error)
-	GetArticlesBySubCategory(cat, subCat string) ([]models.Article, error)
+	GetArticlesByCategory(cat string) ([]string, error)
+	GetAllArticlesList() ([]string, error)
+	GetArticlesListBySubCategory(cat, subCat string) ([]string, error)
 	GetArticlesList() ([]string, error)
 }
 
@@ -472,7 +472,7 @@ func (a *article) ReadArticleReferences(id string) (*string, error) {
 
 }
 
-func (a *article) GetArticlesByCategory(cat string) ([]models.Article, error) {
+func (a *article) GetArticlesByCategory(cat string) ([]string, error) {
 	res, err := a.session.Query(
 		queries.GetArticlesByCategoreyQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat}},
@@ -481,9 +481,9 @@ func (a *article) GetArticlesByCategory(cat string) ([]models.Article, error) {
 		return nil, errors.New("error on reading items from db")
 	}
 
-	var articles []models.Article
+	var articles []string
 	for res.Next() {
-		var art models.Article
+		var art models.ArticleTitle
 		err = res.Row(&art)
 		if err != nil {
 			if err == gocb.ErrNoResult {
@@ -491,13 +491,13 @@ func (a *article) GetArticlesByCategory(cat string) ([]models.Article, error) {
 			}
 			return nil, err
 		}
-		articles = append(articles, art)
+		articles = append(articles, art.Title)
 	}
 
 	return articles, nil
 }
 
-func (a *article) GetAllArticles() ([]models.Article, error) {
+func (a *article) GetAllArticlesList() ([]string, error) {
 	res, err := a.session.Query(
 		queries.GetAllArticlesQuery,
 		nil,
@@ -506,9 +506,9 @@ func (a *article) GetAllArticles() ([]models.Article, error) {
 		return nil, errors.New("error on reading items from db")
 	}
 
-	var articles []models.Article
+	var articles []string
 	for res.Next() {
-		var art models.Article
+		var art models.ArticleTitle
 		err = res.Row(&art)
 		if err != nil {
 			if err == gocb.ErrNoResult {
@@ -516,14 +516,14 @@ func (a *article) GetAllArticles() ([]models.Article, error) {
 			}
 			return nil, err
 		}
-		articles = append(articles, art)
+		articles = append(articles, art.Title)
 	}
 
 	return articles, nil
 
 }
 
-func (a *article) GetArticlesBySubCategory(cat, subCat string) ([]models.Article, error) {
+func (a *article) GetArticlesListBySubCategory(cat, subCat string) ([]string, error) {
 	res, err := a.session.Query(
 		queries.GetArticlesBySubCategoryQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat, subCat}},
@@ -532,9 +532,9 @@ func (a *article) GetArticlesBySubCategory(cat, subCat string) ([]models.Article
 		return nil, errors.New("error on reading items from db")
 	}
 
-	var articles []models.Article
+	var articles []string
 	for res.Next() {
-		var art models.Article
+		var art models.ArticleTitle
 		err = res.Row(&art)
 		if err != nil {
 			if err == gocb.ErrNoResult {
@@ -542,7 +542,7 @@ func (a *article) GetArticlesBySubCategory(cat, subCat string) ([]models.Article
 			}
 			return nil, err
 		}
-		articles = append(articles, art)
+		articles = append(articles, art.Title)
 	}
 
 	return articles, nil
