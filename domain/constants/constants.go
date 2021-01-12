@@ -39,6 +39,8 @@ const (
 	SilverUserObject = "silver"
 	GoldUserObject   = "gold"
 	GuestUserObject  = "guest"
+	SystemRoleObject = "system"
+	AdminRoleObject  = "admin"
 )
 
 const (
