@@ -42,7 +42,7 @@ func Login(c *gin.Context) {
 			"empty fields are not allowed !"))
 		return
 	}
-	err = userLogic.IsUserExists(cridentials.Username)
+	err = userLogic.IsUserExists(constants.SystemRoleObject, cridentials.Username)
 	if err != nil {
 		fmt.Println(err)
 		if err == gocb.ErrNoResult {
@@ -53,7 +53,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	user, err := userLogic.ReadUser(cridentials.Username)
+	user, err := userLogic.ReadUser(constants.SystemRoleObject, " ", cridentials.Username)
 	if err != nil {
 		fmt.Println(err)
 		if err == gocb.ErrNoResult {
@@ -63,7 +63,7 @@ func Login(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	passPointer, err := userLogic.GetPassword(user.Id.String())
+	passPointer, err := userLogic.GetPassword(constants.SystemRoleObject, " ", user.Id.String())
 	if err != nil {
 		fmt.Println(err)
 		if err == gocb.ErrNoResult {
