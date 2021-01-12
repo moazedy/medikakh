@@ -109,7 +109,7 @@ func (u *user) ReadUser(userRole, userId, username string) (*models.User, error)
 		return nil, err
 	}
 
-	if userRole != "admin" {
+	if userRole != constants.AdminRoleObject || userRole != constants.SystemRoleObject {
 		if userId != user.Id.String() {
 			return nil, errors.New("no permissions on reading this user")
 		}
@@ -260,7 +260,7 @@ func (u *user) GetPassword(userRole, requesterUserId, id string) (*string, error
 		return nil, errors.New("premission denied")
 	}
 
-	if userRole != "admin" {
+	if userRole != constants.AdminRoleObject || userRole != constants.SystemRoleObject {
 		if requesterUserId != id {
 			return nil, errors.New("permission denied")
 		}

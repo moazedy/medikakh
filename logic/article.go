@@ -19,6 +19,7 @@ type ArticleLogic interface {
 	GetArticleStatus(title string) (*string, error)
 	UpdateArticle(userRole string, art models.ArticleUpdate) error
 	GetArticlesList(userRole string) ([]string, error)
+	GetArticlesListByCategory(userRole, category string) ([]string, error)
 }
 
 type article struct {
@@ -245,6 +246,26 @@ func (a *article) GetArticlesList(userRole string) ([]string, error) {
 	}
 
 	titles, err := a.repo.GetArticlesList()
+	if err != nil {
+		return nil, err
+	}
+
+	return titles, nil
+}
+
+func (a *article) GetArticlesListByCategory(userRole, category string) ([]string, error) {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return nil, errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.ArticleObject, constants.ReadAction)
+	if !ok {
+		return nil, errors.New("premission denied")
+	}
+
+	titles, err := a.repo.GetArticlesByCategory(category)
 	if err != nil {
 		return nil, err
 	}
