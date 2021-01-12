@@ -56,7 +56,7 @@ func (v *video) Read(c *gin.Context) {
 
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token"})
 		return
 	}
 
@@ -74,7 +74,7 @@ func (v *video) Delete(c *gin.Context) {
 
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token"})
 		return
 	}
 
