@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"medikakh/application/utils"
+	"medikakh/domain/constants"
 	"medikakh/domain/datastore"
 	"medikakh/domain/models"
 	"medikakh/logic"
@@ -66,7 +67,7 @@ func (u *user) Register(c *gin.Context) {
 	price := utils.PaymentPrice(userInfo.Role)
 
 	// in this part we check for user existance in db
-	err = u.logic.IsUserExists(userInfo.Username)
+	err = u.logic.IsUserExists(constants.SystemRoleObject, userInfo.Username)
 	if err == nil {
 		log.Println(err)
 		c.JSON(http.StatusInternalServerError, "there is an internal error or user may alredy exists")
@@ -110,7 +111,8 @@ func (u *user) Register(c *gin.Context) {
 
 func (u *user) ReadUser(c *gin.Context) {
 	username := c.Param("username")
-	user, err := u.logic.ReadUser(username)
+	claimes := utils.GetCurrentUserClaimes(c)
+	user, err := u.logic.ReadUser(claimes.UserRole, claimes.Id, username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err) // needs to be upgrated
 		return
@@ -179,7 +181,8 @@ func (u *user) RegisterCallback(c *gin.Context) {
 }
 
 func (u *user) GetUserId(username string) (*string, error) {
-	name, err := u.logic.GetUserId(username)
+
+	name, err := u.logic.GetUserId(constants.SystemRoleObject, username)
 	if err != nil {
 		return nil, err
 	}
