@@ -21,3 +21,7 @@ type VideoUpdate struct {
 	SubCategory  *string   `json:"sub_category,omitempty"`
 	Descriptions *string   `json:"descriptions,omitempty"`
 }
+
+type VideoTitle struct {
+	Title string `json:"title"`
+}
