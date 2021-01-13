@@ -14,12 +14,12 @@ type VideoRepo interface {
 	GetVideoId(title string) (*string, error)
 	GetVideoCategory(id string) (*string, error)
 	GetVideoSubCategory(id string) (*string, error)
-	GetVideosByCategory(cat string) ([]models.Video, error)
+	GetVideosByCategory(cat string) ([]string, error)
 	DeleteVideo(id string) error
 	UpdateVideo(video models.Video) error
 	GetVideoStatus(id string) (*string, error)
-	GetAllVideos() ([]models.Video, error)
-	GetVideoBySubCategory(cat, subCat string) ([]models.Video, error)
+	GetAllVideosList() ([]string, error)
+	GetVideoBySubCategory(cat, subCat string) ([]string, error)
 	IsVideoExists(title string) (*bool, error)
 	GetVideoTitle(id string) (*string, error)
 }
@@ -176,7 +176,7 @@ func (v *video) GetVideoSubCategory(id string) (*string, error) {
 	return &subCat, nil
 
 }
-func (v *video) GetVideosByCategory(cat string) ([]models.Video, error) {
+func (v *video) GetVideosByCategory(cat string) ([]string, error) {
 	res, err := v.session.Query(
 		queries.GetVideosByCategoryQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat}},
@@ -185,9 +185,9 @@ func (v *video) GetVideosByCategory(cat string) ([]models.Video, error) {
 		return nil, err
 	}
 
-	var videos []models.Video
+	var videos []string
 	for res.Next() {
-		var video models.Video
+		var video models.VideoTitle
 		err = res.Row(&video)
 		if err != nil {
 			if err == gocb.ErrNoResult {
@@ -197,7 +197,7 @@ func (v *video) GetVideosByCategory(cat string) ([]models.Video, error) {
 			return nil, err
 		}
 
-		videos = append(videos, video)
+		videos = append(videos, video.Title)
 	}
 
 	return videos, nil
@@ -259,7 +259,7 @@ func (v *video) GetVideoStatus(id string) (*string, error) {
 
 }
 
-func (v *video) GetAllVideos() ([]models.Video, error) {
+func (v *video) GetAllVideosList() ([]string, error) {
 	res, err := v.session.Query(
 		queries.GetAllVideosQuery,
 		nil,
@@ -268,9 +268,9 @@ func (v *video) GetAllVideos() ([]models.Video, error) {
 		return nil, err
 	}
 
-	var videos []models.Video
+	var videos []string
 	for res.Next() {
-		var video models.Video
+		var video models.VideoTitle
 		err = res.Row(&video)
 		if err != nil {
 			if err == gocb.ErrNoResult {
@@ -278,13 +278,13 @@ func (v *video) GetAllVideos() ([]models.Video, error) {
 			}
 			return nil, err
 		}
-		videos = append(videos, video)
+		videos = append(videos, video.Title)
 	}
 
 	return videos, nil
 }
 
-func (v *video) GetVideoBySubCategory(cat, subCat string) ([]models.Video, error) {
+func (v *video) GetVideoBySubCategory(cat, subCat string) ([]string, error) {
 	res, err := v.session.Query(
 		queries.GetVideoBySubCategoryQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat, subCat}},
@@ -293,9 +293,9 @@ func (v *video) GetVideoBySubCategory(cat, subCat string) ([]models.Video, error
 		return nil, err
 	}
 
-	var videos []models.Video
+	var videos []string
 	for res.Next() {
-		var video models.Video
+		var video models.VideoTitle
 		err = res.Row(&video)
 		if err != nil {
 			if err == gocb.ErrNoResult {
@@ -305,7 +305,7 @@ func (v *video) GetVideoBySubCategory(cat, subCat string) ([]models.Video, error
 			return nil, err
 		}
 
-		videos = append(videos, video)
+		videos = append(videos, video.Title)
 	}
 
 	return videos, nil
