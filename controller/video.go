@@ -14,8 +14,7 @@ type VideoController interface {
 	Read(c *gin.Context)
 	Delete(c *gin.Context)
 	UpdateVideo(c *gin.Context)
-	// TODO:
-	// GetVideosByCategory(c *gin.Context)
+	GetVideosByCategory(c *gin.Context)
 }
 
 type video struct {
@@ -108,4 +107,27 @@ func (v *video) UpdateVideo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "video updated"})
+}
+
+func (v *video) GetVideosByCategory(c *gin.Context) {
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token"})
+		return
+	}
+
+	category := c.Param("category")
+	if category == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "category value can not be empty"})
+		return
+	}
+
+	vids, err := v.logic.GetVideosByCategory(*role, category)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, vids)
+
 }
