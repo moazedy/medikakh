@@ -27,4 +27,6 @@ const (
 	GetVideoBySubCategoryQuery = `SELECT * FROM videos WHERE videos.category= $1 AND videos.sub_category=$2`
 
 	IsVideoExistsQuery = `SELECT meta().id FROM videos WHERE videos.title = $1`
+
+	GetVideoTitleQuery = `SELECT videos.title FROM videos WHERE meta().id= $1`
 )

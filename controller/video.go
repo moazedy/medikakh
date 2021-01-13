@@ -13,8 +13,8 @@ type VideoController interface {
 	Save(c *gin.Context)
 	Read(c *gin.Context)
 	Delete(c *gin.Context)
+	UpdateVideo(c *gin.Context)
 	// TODO:
-	// UpdateVideo(c *gin.Context)
 	// GetVideosByCategory(c *gin.Context)
 }
 
@@ -86,4 +86,26 @@ func (v *video) Delete(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "video deleted"})
 
+}
+
+func (v *video) UpdateVideo(c *gin.Context) {
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token"})
+		return
+	}
+	var newVid models.VideoUpdate
+	err := c.BindJSON(&newVid)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "error on parsing json request"})
+		return
+	}
+
+	err = v.logic.Update(*role, newVid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "video updated"})
 }

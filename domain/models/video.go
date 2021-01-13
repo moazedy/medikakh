@@ -11,3 +11,13 @@ type Video struct {
 	SubCategory  string    `json:"sub_category"`
 	Descriptions string    `json:"descriptions"`
 }
+
+type VideoUpdate struct {
+	Id           uuid.UUID `json:"id"`
+	Title        *string   `json:"title,omitempty"`
+	ContentLink  *string   `json:"content_link,omitempty"`
+	Status       *string   `json:"status,omitempty"`
+	Category     *string   `json:"category,omitempty"`
+	SubCategory  *string   `json:"sub_category,omitempty"`
+	Descriptions *string   `json:"descriptions,omitempty"`
+}

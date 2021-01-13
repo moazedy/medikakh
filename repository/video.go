@@ -21,6 +21,7 @@ type VideoRepo interface {
 	GetAllVideos() ([]models.Video, error)
 	GetVideoBySubCategory(cat, subCat string) ([]models.Video, error)
 	IsVideoExists(title string) (*bool, error)
+	GetVideoTitle(id string) (*string, error)
 }
 
 type video struct {
@@ -336,4 +337,29 @@ func (v *video) IsVideoExists(title string) (*bool, error) {
 	}
 
 	return &returnValue, nil
+}
+
+func (v *video) GetVideoTitle(id string) (*string, error) {
+	res, err := v.session.Query(
+		queries.GetVideoTitleQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
+	)
+	if err != nil {
+		if err == gocb.ErrNoResult {
+			return nil, errors.New("video does not exist !")
+		}
+
+		return nil, err
+	}
+
+	var title string
+	for res.Next() {
+		err = res.Row(&title)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &title, nil
+
 }

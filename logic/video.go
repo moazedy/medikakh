@@ -16,6 +16,7 @@ type VideoLogic interface {
 	Save(userRole string, vi models.Video) error
 	GetVideo(userRole, vidTitle string) (*models.Video, error)
 	Delete(userRole, vidTitle string) error
+	Update(userRole string, vid models.VideoUpdate) error
 }
 
 type video struct {
@@ -111,6 +112,92 @@ func (v *video) Delete(userRole, vidTitle string) error {
 		return err
 	}
 	err = v.repo.DeleteVideo(*id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (v *video) Update(userRole string, vid models.VideoUpdate) error {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return errors.New("role statment not valid")
+	}
+
+	permissionOk := authorization.IsPermissioned(userRole, constants.VideoObject, constants.UpdateAction)
+	if !permissionOk {
+		return errors.New("unauthorized user")
+	}
+	// this part seems to be extra. when you reading a file all the parts will be done auto ...
+	title, err := v.repo.GetVideoTitle(vid.Id.String())
+	if err != nil {
+		return err
+	}
+	videoExistance, err := v.repo.IsVideoExists(*title)
+	if err != nil {
+		return err
+	}
+	if !*videoExistance {
+		return errors.New("video does not exists")
+	}
+	// *********************** thill here *********************
+
+	oldVid, err := v.repo.GetVideoById(vid.Id.String())
+	if err != nil {
+		return err
+	}
+	var newVid models.Video
+	newVid.Id = vid.Id
+
+	if vid.Title != nil {
+		newVid.Title = *vid.Title
+	} else {
+		newVid.Title = oldVid.Title
+	}
+
+	if vid.ContentLink != nil {
+		newVid.ContentLink = *vid.ContentLink
+	} else {
+		newVid.ContentLink = oldVid.ContentLink
+	}
+
+	if vid.Status != nil {
+		newVid.Status = *vid.Status
+	} else {
+		newVid.Status = oldVid.Status
+	}
+
+	if vid.Category != nil {
+		// checking for category value validation
+		dbSession, err := datastore.NewCouchbaseSession()
+		if err != nil {
+			return err
+		}
+		categoryLogic := NewCategoryLogic(repository.NewCategoryRepo(dbSession))
+
+		err = categoryLogic.IsCategoryExists(*vid.Category)
+		if err != nil {
+			return err
+		}
+		newVid.Category = *vid.Category
+	} else {
+		newVid.Category = oldVid.Category
+	}
+
+	if vid.SubCategory != nil {
+		newVid.SubCategory = *vid.SubCategory
+	} else {
+		newVid.SubCategory = oldVid.SubCategory
+	}
+
+	if vid.Descriptions != nil {
+		newVid.Descriptions = *vid.Descriptions
+	} else {
+		newVid.Descriptions = oldVid.Descriptions
+	}
+
+	err = v.repo.UpdateVideo(newVid)
 	if err != nil {
 		return err
 	}
