@@ -17,6 +17,7 @@ type VideoLogic interface {
 	GetVideo(userRole, vidTitle string) (*models.Video, error)
 	Delete(userRole, vidTitle string) error
 	Update(userRole string, vid models.VideoUpdate) error
+	GetVideosByCategory(userRole, cat string) ([]string, error)
 }
 
 type video struct {
@@ -203,4 +204,35 @@ func (v *video) Update(userRole string, vid models.VideoUpdate) error {
 	}
 
 	return nil
+}
+
+func (v *video) GetVideosByCategory(userRole, cat string) ([]string, error) {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return nil, errors.New("role statment not valid")
+	}
+
+	permissionOk := authorization.IsPermissioned(userRole, constants.VideoObject, constants.ReadAction)
+	if !permissionOk {
+		return nil, errors.New("unauthorized user")
+	}
+
+	// checking for category value validation
+	dbSession, err := datastore.NewCouchbaseSession()
+	if err != nil {
+		return nil, err
+	}
+	categoryLogic := NewCategoryLogic(repository.NewCategoryRepo(dbSession))
+
+	err = categoryLogic.IsCategoryExists(cat)
+	if err != nil {
+		return nil, err
+	}
+
+	vids, err := v.repo.GetVideosByCategory(cat)
+	if err != nil {
+		return nil, err
+	}
+
+	return vids, nil
 }
