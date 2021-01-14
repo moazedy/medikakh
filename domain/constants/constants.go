@@ -2,10 +2,11 @@ package constants
 
 // general constants for casbin
 const (
-	SaveAction   = "save"
-	ReadAction   = "read"
-	DeleteAction = "delete"
-	UpdateAction = "update"
+	SaveAction       = "save"
+	ReadAction       = "read"
+	DeleteAction     = "delete"
+	UpdateAction     = "update"
+	UpdateRoleAction = "update_role"
 )
 
 // consts related to articles

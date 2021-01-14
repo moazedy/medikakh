@@ -16,6 +16,14 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type UserUpdate struct {
+	Id       uuid.UUID `json:"id"`
+	Username *string   `json:"username,omitempty"`
+	Password *string   `json:"password,omitempty"`
+	Email    *string   `json:"email,omitempty"`
+	Role     *string   `json:"role,omitempty"`
+}
+
 type UserRegisterationRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

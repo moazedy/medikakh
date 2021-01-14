@@ -24,6 +24,7 @@ type UserLogic interface {
 	GetUserRole(userRole, username string) (*string, error)
 	GetUserId(userRole, username string) (*string, error)
 	GetPassword(userRole, RequesterUserId, id string) (*string, error)
+	UpdateUser(userRole, userId string, us models.UserUpdate) error
 }
 
 type user struct {
@@ -272,4 +273,80 @@ func (u *user) GetPassword(userRole, requesterUserId, id string) (*string, error
 	}
 
 	return pass, nil
+}
+
+func (u *user) UpdateUser(userRole, userId string, us models.UserUpdate) error {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.UpdateAction)
+	if !ok {
+		return errors.New("premission denied")
+	}
+
+	if userRole != "admin" || userId != us.Id.String() {
+		return errors.New("access denied")
+	}
+
+	oldUser, err := u.repo.ReadUserById(userId)
+	if err != nil {
+		return err
+	}
+	var newUser models.User
+	newUser.Id = us.Id
+	newUser.CreatedAt = oldUser.CreatedAt
+
+	if us.Username != nil {
+		existance, err := u.repo.IsUsernameExists(*us.Username)
+		if err != nil {
+			return err
+		}
+		if existance {
+			return errors.New("username alredy exists")
+		}
+		newUser.Username = *us.Username
+	} else {
+		newUser.Username = oldUser.Username
+	}
+
+	if us.Password != nil {
+		err := utils.CheckPasswordValueValidation(*us.Password)
+		if err != nil {
+			return err
+		}
+		hashedPass, err := bcrypt.GenerateFromPassword([]byte(*us.Password), 10)
+		if err != nil {
+			return err
+		}
+		newUser.Password = string(hashedPass)
+	} else {
+		newUser.Password = oldUser.Password
+	}
+
+	if us.Email != nil {
+		newUser.Email = *us.Email // TODO: email validation
+	} else {
+		newUser.Email = oldUser.Email
+	}
+
+	if us.Role != nil {
+		ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.UpdateRoleAction)
+		if !ok {
+			return errors.New("premission denied")
+		}
+
+		newUser.Role = *us.Role
+	} else {
+		newUser.Role = oldUser.Role
+	}
+
+	err = u.repo.UpdateUser(newUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

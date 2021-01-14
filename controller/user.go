@@ -18,10 +18,11 @@ import (
 
 type UserController interface {
 	Register(c *gin.Context)
-	ReadUser(c *gin.Context)
 	RegisterCallback(c *gin.Context)
+	ReadUser(c *gin.Context)
 	GetUserId(username string) (*string, error)
 	Login(c *gin.Context)
+	UpdateUser(c *gin.Context)
 }
 
 type user struct {
@@ -192,4 +193,26 @@ func (u *user) GetUserId(username string) (*string, error) {
 
 func (u user) Login(c *gin.Context) {
 	authentication.Login(c)
+}
+
+func (u *user) UpdateUser(c *gin.Context) {
+	var newUser models.UserUpdate
+	err := c.BindJSON(&newUser)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "error on parsing json request"})
+		return
+	}
+
+	userClaimes := utils.GetCurrentUserClaimes(c)
+	if userClaimes == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting user data from gin context"})
+		return
+	}
+	err = u.logic.UpdateUser(userClaimes.UserRole, userClaimes.Userid.String(), newUser)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "user updated"})
 }
