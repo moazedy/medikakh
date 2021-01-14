@@ -15,6 +15,7 @@ type VideoController interface {
 	Delete(c *gin.Context)
 	UpdateVideo(c *gin.Context)
 	GetVideosByCategory(c *gin.Context)
+	GetAllVieosList(c *gin.Context)
 }
 
 type video struct {
@@ -123,6 +124,23 @@ func (v *video) GetVideosByCategory(c *gin.Context) {
 	}
 
 	vids, err := v.logic.GetVideosByCategory(*role, category)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, vids)
+
+}
+
+func (v *video) GetAllVieosList(c *gin.Context) {
+	role := utils.ExtractRoleFromToken(c)
+	if role == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token"})
+		return
+	}
+
+	vids, err := v.logic.GetAllVideosList(*role)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
