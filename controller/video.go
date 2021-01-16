@@ -15,7 +15,7 @@ type VideoController interface {
 	Delete(c *gin.Context)
 	UpdateVideo(c *gin.Context)
 	GetVideosByCategory(c *gin.Context)
-	GetAllVieosList(c *gin.Context)
+	GetAllVideosList(c *gin.Context)
 }
 
 type video struct {
@@ -52,7 +52,7 @@ func (v *video) Save(c *gin.Context) {
 }
 
 func (v *video) Read(c *gin.Context) {
-	videoTitle := c.Param("video_title")
+	videoTitle := c.Param("title")
 
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
@@ -133,7 +133,7 @@ func (v *video) GetVideosByCategory(c *gin.Context) {
 
 }
 
-func (v *video) GetAllVieosList(c *gin.Context) {
+func (v *video) GetAllVideosList(c *gin.Context) {
 	role := utils.ExtractRoleFromToken(c)
 	if role == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token"})
