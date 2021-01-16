@@ -13,14 +13,47 @@ func Run(port string) {
 	if err != nil {
 		panic(err)
 	}
+	// controllers :
 	userController := NewUserController(
 		logic.NewUserLogic(repository.NewUserRpo(dbSession)),
 	)
 
+	articleController := NewArticleController(
+		logic.NewArticleLogic(repository.NewArticleRpo(dbSession)),
+	)
+
+	videoController := NewVideoController(
+		logic.NewVideoLogic(repository.NewVideoRepo(dbSession)),
+	)
+
+	ddController := NewDDcontroller(logic.NewDDLogic(repository.NewDDrepo(dbSession)))
+
 	engine := gin.Default()
 	test := engine.Group("test")
-	test.GET("/register", userController.Register)
+	test.POST("/register", userController.Register)
 	test.GET("/register/callback/:username", userController.RegisterCallback)
+	test.POST("/login", userController.Login)
+
+	test.GET("/users/read/:username", userController.ReadUser)
+	test.PATCH("/users/user", userController.UpdateUser)
+
+	test.POST("/articles/article", articleController.Save)
+	test.GET("/articles/article/:title", articleController.ReadArticle)
+	test.GET("/articles/all", articleController.GetArticlesList)
+	test.GET("/articles/category/:categroy", articleController.GetArticlesByCategory)
+	test.DELETE("/articles/article/:title", articleController.DeleteArticle)
+	test.PATCH("/aritcles/aritcel", articleController.UpdateArticle)
+
+	test.POST("/videos/video", videoController.Save)
+	test.GET("/video/video/:title", videoController.Read)
+	test.DELETE("/videos/delete/:title", videoController.Delete)
+	test.PATCH("/videos/video", videoController.UpdateVideo)
+	test.GET("/videos/all", videoController.GetAllVideosList)
+	test.GET("/videos/category/:category", videoController.GetVideosByCategory)
+
+	test.POST("/dd/insert", ddController.InsertData)
+	test.GET("/dd/read/:title", ddController.ReadData)
+	test.GET("/dd/read/pattern/:pattern", ddController.ReadDataUsingPattern)
 
 	engine.Run(port)
 }
