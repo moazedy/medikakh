@@ -38,11 +38,7 @@ func NewUserController(logic logic.UserLogic) UserController {
 func (u *user) Register(c *gin.Context) {
 
 	var userInfo models.UserRegisterationRequest
-	//c.BindJSON(&userInfo)
-	userInfo.Username = "goli"
-	userInfo.Password = "aliali"
-	userInfo.Role = "silver"
-	userInfo.Email = "ali@gmail.com"
+	c.BindJSON(&userInfo)
 	// in this block vlidation of user information will be checked
 	err := utils.CheckUsernameValueValidation(userInfo.Username)
 	if err != nil {
