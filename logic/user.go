@@ -54,13 +54,13 @@ func (u *user) Register(username, password, role, email string) error {
 		return err
 	}
 
-	userExistance, err := u.repo.IsUsernameExists(username)
-	if err != nil {
-		return err
-	}
-	if userExistance {
-		return errors.New("user alredy exists")
-	}
+	/*	userExistance, err := u.repo.IsUsernameExists(username)
+		if err != nil {
+			return err
+		}
+		if userExistance {
+			return errors.New("user alredy exists")
+		} */
 
 	var newUser models.User
 	newUser.Id = uuid.New()
