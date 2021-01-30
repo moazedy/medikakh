@@ -53,7 +53,7 @@ func Run(port string) {
 
 	test.POST("/dd/insert", ddController.InsertData)
 	test.GET("/dd/read/:title", ddController.ReadData)
-	test.GET("/dd/read/pattern/:pattern", ddController.ReadDataUsingPattern)
+	test.GET("/dd/pattern/:pattern", ddController.ReadDataUsingPattern)
 
 	engine.Run(port)
 }
