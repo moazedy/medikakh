@@ -46,6 +46,11 @@ func (u *user) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
+
+	err = u.logic.IsUserExists(constants.SystemRoleObject, userInfo.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+	}
 	err = utils.CheckPasswordValueValidation(userInfo.Password)
 	if err != nil {
 		log.Println(err)
