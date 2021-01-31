@@ -1,0 +1,14 @@
+p, system, user, read
+p, 127.0.0.1, GET, event
+p, 127.0.0.1, GET, post
+p, 127.0.0.1, GET, tag
+p, 127.0.0.1, GET, user
+p, 127.0.0.1, user_activation_status, user
+p, 127.0.0.1, ACTIVE, user
+p, 127.0.0.1, GET_FOLLOWERS, user
+p, 127.0.0.1, users, get_inactive_users
+p, admin, article, GET
+p, admin, article, read
+p, member, /member/formember, GET
+p, member, /logout, *
+
