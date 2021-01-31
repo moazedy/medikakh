@@ -1,5 +1,0 @@
-p, admin, article, save 
-p, admin, article, read
-p, member, /member/formember, GET
-p, member, /logout, *
-
