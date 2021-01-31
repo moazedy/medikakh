@@ -20,6 +20,10 @@ func CheckForRoleStatmentCorrectness(role string) bool {
 		return true
 	case "gold":
 		return true
+	case constants.SystemRoleObject:
+		return true
+	case constants.AdminRoleObject:
+		return true
 	default:
 		return false
 	}
