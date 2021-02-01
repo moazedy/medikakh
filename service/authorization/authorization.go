@@ -13,8 +13,8 @@ func IsPermissioned(role, object, action string) bool {
 	policyFileName := "basic_policy.csv"
 	_, b, _, _ := runtime.Caller(0)
 	basePath := filepath.Dir(b)
-	policyPath := basePath + "/" + baseFileName
-	modelPath := basePath + "/" + policyFileName
+	policyPath := basePath + "/" + policyFileName
+	modelPath := basePath + "/" + baseFileName
 
 	enforcer, err := casbin.NewEnforcerSafe(modelPath, policyPath)
 	if err != nil {
@@ -25,7 +25,11 @@ func IsPermissioned(role, object, action string) bool {
 		log.Println("failed to open casbin files")
 		return false
 	}
-	res := enforcer.Enforce(role, object, action)
+	res, err := enforcer.EnforceSafe(role, object, action)
+	if err != nil {
+		log.Println(err.Error())
+		return false
+	}
 
 	if !res {
 		log.Println("access denied")

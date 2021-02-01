@@ -110,7 +110,7 @@ func (u *user) ReadUser(userRole, userId, username string) (*models.User, error)
 		return nil, err
 	}
 
-	if userRole != constants.AdminRoleObject || userRole != constants.SystemRoleObject {
+	if !(userRole == constants.AdminRoleObject || userRole == constants.SystemRoleObject) {
 		if userId != user.Id.String() {
 			return nil, errors.New("no permissions on reading this user")
 		}
@@ -183,7 +183,7 @@ func (u *user) IsUserExists(userRole, username string) error {
 	// checking for user premissins on saving articles
 	ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.ReadAction)
 	if !ok {
-		return errors.New("premission denied")
+		return errors.New("permission denied")
 	}
 
 	userExistance, err := u.repo.IsUsernameExists(username)
@@ -249,7 +249,7 @@ func (u *user) GetUserId(userRole, username string) (*string, error) {
 	return name, nil
 }
 
-func (u *user) GetPassword(userRole, requesterUserId, id string) (*string, error) {
+func (u *user) GetPassword(userRole, requestedUserId, id string) (*string, error) {
 	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
 	if !roleOK {
 		return nil, errors.New("role statment invalid")
@@ -261,9 +261,9 @@ func (u *user) GetPassword(userRole, requesterUserId, id string) (*string, error
 		return nil, errors.New("premission denied")
 	}
 
-	if userRole != constants.AdminRoleObject || userRole != constants.SystemRoleObject {
-		if requesterUserId != id {
-			return nil, errors.New("permission denied")
+	if !(userRole == constants.AdminRoleObject || userRole == constants.SystemRoleObject) {
+		if requestedUserId != id {
+			return nil, errors.New("no permissions on reading this user")
 		}
 	}
 
