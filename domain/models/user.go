@@ -10,7 +10,7 @@ import (
 type User struct {
 	Id        uuid.UUID `josn:"id"`
 	Username  string    `json:"username"`
-	Password  string    `json:"password"`
+	Password  string    `json:"pass"`
 	Email     string    `json:"email"`
 	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
@@ -19,14 +19,14 @@ type User struct {
 type UserUpdate struct {
 	Id       uuid.UUID `json:"id"`
 	Username *string   `json:"username,omitempty"`
-	Password *string   `json:"password,omitempty"`
+	Password *string   `json:"pass,omitempty"`
 	Email    *string   `json:"email,omitempty"`
 	Role     *string   `json:"role,omitempty"`
 }
 
 type UserRegisterationRequest struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Password string `json:"pass"`
 	Role     string `json:"role"`
 	Email    string `json:"email"`
 }
@@ -41,5 +41,9 @@ type Claimes struct {
 
 type Cridentials struct {
 	Username string `json:"username"`
-	Password string `json :"password"`
+	Password string `json:"pass"`
+}
+
+type PasswordModel struct {
+	Password string `json:"pass"`
 }

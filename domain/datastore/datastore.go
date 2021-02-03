@@ -28,11 +28,6 @@ func NewCouchbaseSession() (*gocb.Cluster, error) {
 		panic(err)
 	}
 	fmt.Println("connecting to couchbase databse ...")
-	_, err = cluster.Ping(nil)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("db ping success ")
 
 	return cluster, nil
 }

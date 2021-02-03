@@ -32,6 +32,7 @@ func Login(c *gin.Context) {
 	cridentials := new(models.Cridentials)
 	err = c.BindJSON(&cridentials)
 	if err != nil {
+		fmt.Println("bind error")
 		fmt.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -52,7 +53,6 @@ func Login(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-
 	user, err := userLogic.ReadUser(constants.SystemRoleObject, " ", cridentials.Username)
 	if err != nil {
 		fmt.Println(err)
@@ -81,7 +81,7 @@ func Login(c *gin.Context) {
 		return
 	}
 	expTime := time.Now().Add(5 * time.Minute)
-
+	fmt.Println("after exp time ***********")
 	claimes := &models.Claimes{
 		Userid:    user.Id,
 		UserRole:  user.Role,

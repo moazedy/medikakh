@@ -78,6 +78,7 @@ func (u *user) ReadUserByUsername(username string) (*models.User, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{username}},
 	)
 	if err != nil {
+		log.Println("error happend in here")
 		return nil, errors.New("error on reading data form db")
 	}
 
@@ -113,10 +114,11 @@ func (u *user) GetUserPassword(Id string) (*string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{Id}},
 	)
 	if err != nil {
+		log.Println("id is : " + Id)
 		return nil, errors.New("error on reading data from db")
 	}
 
-	var pass string
+	var pass models.PasswordModel
 	for res.Next() {
 		err = res.Row(&pass)
 		if err != nil {
@@ -127,7 +129,7 @@ func (u *user) GetUserPassword(Id string) (*string, error) {
 		}
 	}
 
-	return &pass, nil
+	return &pass.Password, nil
 }
 
 func (u *user) GetUserRole(Id string) (*string, error) {
