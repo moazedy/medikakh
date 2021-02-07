@@ -81,7 +81,6 @@ func Login(c *gin.Context) {
 		return
 	}
 	expTime := time.Now().Add(5 * time.Minute)
-	fmt.Println("after exp time ***********")
 	claimes := &models.Claimes{
 		Userid:    user.Id,
 		UserRole:  user.Role,
@@ -104,7 +103,7 @@ func Login(c *gin.Context) {
 		int(expTime.Unix()),
 		"/",
 		"localhost",
-		true,
+		false,
 		true,
 	)
 
