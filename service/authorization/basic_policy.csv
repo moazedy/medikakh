@@ -1,3 +1,6 @@
 p, system, user, read
 p, admin, user, read
+p, gold, user, read
+p, silver, user, read
+p, bronze, user, read
 

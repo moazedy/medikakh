@@ -3,6 +3,7 @@ package logic
 import (
 	"errors"
 	"fmt"
+	"log"
 	"medikakh/application/utils"
 	"medikakh/domain/constants"
 	"medikakh/domain/models"
@@ -86,9 +87,12 @@ func (u *user) ReadUser(userRole, userId, username string) (*models.User, error)
 	if err != nil {
 		return nil, err
 	}
-	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
-	if !roleOK {
-		return nil, errors.New("role statment invalid")
+	if !(userRole == constants.AdminRoleObject || userRole == constants.SystemRoleObject) {
+		roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+		if !roleOK {
+			return nil, errors.New("role statment invalid")
+		}
+
 	}
 
 	// checking for user premissins on saving articles
@@ -111,6 +115,8 @@ func (u *user) ReadUser(userRole, userId, username string) (*models.User, error)
 	}
 
 	if !(userRole == constants.AdminRoleObject || userRole == constants.SystemRoleObject) {
+		log.Println("requester user id : " + userId)
+		log.Println("requested user id : " + user.Id.String())
 		if userId != user.Id.String() {
 			return nil, errors.New("no permissions on reading this user")
 		}

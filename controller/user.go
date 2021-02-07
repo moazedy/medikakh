@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"medikakh/application/utils"
 	"medikakh/domain/constants"
@@ -114,8 +115,9 @@ func (u *user) Register(c *gin.Context) {
 func (u *user) ReadUser(c *gin.Context) {
 	username := c.Param("username")
 	claimes := utils.GetCurrentUserClaimes(c)
-	user, err := u.logic.ReadUser(claimes.UserRole, claimes.Id, username)
+	user, err := u.logic.ReadUser(claimes.UserRole, claimes.UserId.String(), username)
 	if err != nil {
+		fmt.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, err) // needs to be upgrated
 		return
 	}
@@ -209,7 +211,7 @@ func (u *user) UpdateUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting user data from gin context"})
 		return
 	}
-	err = u.logic.UpdateUser(userClaimes.UserRole, userClaimes.Userid.String(), newUser)
+	err = u.logic.UpdateUser(userClaimes.UserRole, userClaimes.UserId.String(), newUser)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return

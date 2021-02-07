@@ -33,7 +33,7 @@ type UserRegisterationRequest struct {
 
 // Claimes are infos that being stored in jwt
 type Claimes struct {
-	Userid    uuid.UUID `json:"userid"`
+	UserId    uuid.UUID `json:"user_id"`
 	UserRole  string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 	jwt.StandardClaims

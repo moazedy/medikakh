@@ -82,7 +82,7 @@ func Login(c *gin.Context) {
 	}
 	expTime := time.Now().Add(5 * time.Minute)
 	claimes := &models.Claimes{
-		Userid:    user.Id,
+		UserId:    user.Id,
 		UserRole:  user.Role,
 		CreatedAt: user.CreatedAt,
 		StandardClaims: jwt.StandardClaims{

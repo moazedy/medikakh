@@ -150,7 +150,7 @@ func ExtractRoleFromToken(c *gin.Context) *string {
 func GetCurrentUserClaimes(c *gin.Context) *models.Claimes {
 	tokenString, err := c.Cookie("mediKakh")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		if err == http.ErrNoCookie {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return nil
@@ -166,7 +166,7 @@ func GetCurrentUserClaimes(c *gin.Context) *models.Claimes {
 			return key, nil
 		})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		if err == jwt.ErrSignatureInvalid {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return nil

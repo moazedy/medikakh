@@ -2,6 +2,7 @@ package logic
 
 import (
 	"errors"
+	"log"
 	"time"
 )
 
@@ -20,14 +21,17 @@ func checkForRoleStatmentCorrectness(role string) bool {
 
 func checkUsernameValueValidation(username string) error {
 	if username == "" {
+		log.Println("username can not be empty")
 		return errors.New("username can not be empty")
 	}
 
 	if len(username) > 30 {
+		log.Println("too long username, username should be less than 30 characters")
 		return errors.New("too long username, username should be less than 30 characters")
 	}
 
 	if len(username) < 2 {
+		log.Println("too short username")
 		return errors.New("too short username")
 	}
 
@@ -36,14 +40,17 @@ func checkUsernameValueValidation(username string) error {
 
 func checkPasswordValueValidation(pass string) error {
 	if pass == "" {
+		log.Println("password can't be empty")
 		return errors.New("password can't be empty")
 	}
 
 	if len(pass) > 30 {
+		log.Println("too long password, password should be less than 30 characters")
 		return errors.New("too long password, password should be less than 30 characters")
 	}
 
 	if len(pass) < 4 {
+		log.Println("too short password, it should be at least 4 characters")
 		return errors.New("too short password, it should be at least 4 characters")
 	}
 
@@ -60,6 +67,7 @@ func GetRolePeriod(role string) (int, error) {
 	case "gold":
 		return 180, nil
 	default:
+		log.Println("role vlaue is incorrect")
 		return 0, errors.New("role value is incorrect")
 	}
 }
