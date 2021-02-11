@@ -59,7 +59,7 @@ func (a *article) ReadArticle(c *gin.Context) {
 		return
 	}
 
-	role := utils.ExtractRoleFromToken(c)
+	role := utils.ExtractRoleFromToken(c) // TODO : returning error must be extracted from this func
 	if role == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on extracting role from token "})
 		return

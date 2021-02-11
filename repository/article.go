@@ -2,9 +2,11 @@ package repository
 
 import (
 	"errors"
-	"github.com/couchbase/gocb/v2"
+	"log"
 	"medikakh/domain/models"
 	"medikakh/repository/queries"
+
+	"github.com/couchbase/gocb/v2"
 )
 
 type ArticleRepo interface {
@@ -51,6 +53,7 @@ func (a *article) Save(article models.Article) error {
 		}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -65,6 +68,7 @@ func (a *article) ReadArticleById(id string) (*models.Article, error) {
 		}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -76,6 +80,7 @@ func (a *article) ReadArticleById(id string) (*models.Article, error) {
 				return nil, errors.New("the article does not exist !")
 			}
 
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -91,6 +96,7 @@ func (a *article) ReadArticleByTitle(title string) (*models.Article, error) {
 		}},
 	)
 	if err != nil {
+		log.Println("error in quering with database : " + err.Error())
 		return nil, err
 	}
 
@@ -102,6 +108,7 @@ func (a *article) ReadArticleByTitle(title string) (*models.Article, error) {
 				return nil, errors.New("the article does not exist !")
 			}
 
+			log.Println("error on filling aritcle model : " + err.Error())
 			return nil, err
 		}
 	}
@@ -120,6 +127,7 @@ func (a *article) GetArticleCategory(id string) (*string, error) {
 			return nil, errors.New("the article does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -127,6 +135,8 @@ func (a *article) GetArticleCategory(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&category)
 		if err != nil {
+
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -144,6 +154,7 @@ func (a *article) GetArticleSubsCategory(id string) (*string, error) {
 			return nil, errors.New("the article does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -151,6 +162,8 @@ func (a *article) GetArticleSubsCategory(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&subCategory)
 		if err != nil {
+
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -164,6 +177,8 @@ func (a *article) GetArticleId(title string) (*string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{title}},
 	)
 	if err != nil {
+
+		log.Println(err.Error())
 		if err == gocb.ErrNoResult {
 			return nil, errors.New("the article does not exist !")
 		}
@@ -171,15 +186,17 @@ func (a *article) GetArticleId(title string) (*string, error) {
 		return nil, err
 	}
 
-	var id string
+	var id models.Id
 	for res.Next() {
 		err = res.Row(&id)
 		if err != nil {
+
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
 
-	return &id, nil
+	return &id.Id, nil
 
 }
 func (a *article) ReadArticleSummary(id string) (*string, error) {
@@ -188,6 +205,7 @@ func (a *article) ReadArticleSummary(id string) (*string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		if err == gocb.ErrNoResult {
 			return nil, errors.New("the article does not exist !")
 		}
@@ -199,6 +217,7 @@ func (a *article) ReadArticleSummary(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&summery)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -217,6 +236,7 @@ func (a *article) ReadArticleEtiology(id string) (*string, error) {
 			return nil, errors.New("the article does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -224,6 +244,8 @@ func (a *article) ReadArticleEtiology(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&result)
 		if err != nil {
+
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -242,6 +264,7 @@ func (a *article) ReadArticleClinicalFeatures(id string) (*string, error) {
 			return nil, errors.New("the article does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -249,6 +272,8 @@ func (a *article) ReadArticleClinicalFeatures(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&content)
 		if err != nil {
+
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -263,6 +288,8 @@ func (a *article) DeleteArticle(id string) error {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
+
+		log.Println(err.Error())
 		return err
 	}
 
@@ -270,6 +297,7 @@ func (a *article) DeleteArticle(id string) error {
 }
 
 func (a *article) GetArticleStatus(id string) (*string, error) {
+	log.Println("in getting status")
 	res, err := a.session.Query(
 		queries.GetArticleStatusQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
@@ -279,18 +307,20 @@ func (a *article) GetArticleStatus(id string) (*string, error) {
 			return nil, errors.New("the article does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
-	var status string
+	var status models.Status
 	for res.Next() {
 		err = res.Row(&status)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
 
-	return &status, nil
+	return &status.Status, nil
 
 }
 
@@ -300,6 +330,7 @@ func (a *article) IsArticleExists(title string) (*bool, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{title}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, errors.New("error on serching for specific article")
 	}
 	var returnValue bool
@@ -310,6 +341,7 @@ func (a *article) IsArticleExists(title string) (*bool, error) {
 			if err == gocb.ErrNoResult {
 				return &returnValue, errors.New("article does not exist") //it should be checked later
 			}
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -341,6 +373,7 @@ func (a *article) UpdateArticle(article models.Article) error {
 		}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -353,6 +386,7 @@ func (a *article) ReadArticleDiagnostics(id string) (*string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		if err == gocb.ErrNoResult {
 			return nil, errors.New("the article does not exist !")
 		}
@@ -364,6 +398,7 @@ func (a *article) ReadArticleDiagnostics(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&diags)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -381,6 +416,7 @@ func (a *article) ReadArticleTreatment(id string) (*string, error) {
 		if err == gocb.ErrNoResult {
 			return nil, errors.New("the article does not exist !")
 		}
+		log.Println(err.Error())
 
 		return nil, err
 	}
@@ -389,6 +425,7 @@ func (a *article) ReadArticleTreatment(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&treatments)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -407,6 +444,7 @@ func (a *article) ReadArticleComplications(id string) (*string, error) {
 			return nil, errors.New("the article does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -414,6 +452,7 @@ func (a *article) ReadArticleComplications(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&comps)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -432,6 +471,7 @@ func (a *article) ReadArticlePrevention(id string) (*string, error) {
 			return nil, errors.New("the article does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -439,6 +479,7 @@ func (a *article) ReadArticlePrevention(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&prevs)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -457,6 +498,7 @@ func (a *article) ReadArticleReferences(id string) (*string, error) {
 			return nil, errors.New("the article does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -464,6 +506,7 @@ func (a *article) ReadArticleReferences(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&refs)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -478,6 +521,7 @@ func (a *article) GetArticlesByCategory(cat string) ([]string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, errors.New("error on reading items from db")
 	}
 
@@ -489,6 +533,7 @@ func (a *article) GetArticlesByCategory(cat string) ([]string, error) {
 			if err == gocb.ErrNoResult {
 				return articles, nil
 			}
+			log.Println(err.Error())
 			return nil, err
 		}
 		articles = append(articles, art.Title)
@@ -503,6 +548,7 @@ func (a *article) GetAllArticlesList() ([]string, error) {
 		nil,
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, errors.New("error on reading items from db")
 	}
 
@@ -514,6 +560,7 @@ func (a *article) GetAllArticlesList() ([]string, error) {
 			if err == gocb.ErrNoResult {
 				return articles, nil
 			}
+			log.Println(err.Error())
 			return nil, err
 		}
 		articles = append(articles, art.Title)
@@ -529,6 +576,7 @@ func (a *article) GetArticlesListBySubCategory(cat, subCat string) ([]string, er
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat, subCat}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, errors.New("error on reading items from db")
 	}
 
@@ -540,6 +588,7 @@ func (a *article) GetArticlesListBySubCategory(cat, subCat string) ([]string, er
 			if err == gocb.ErrNoResult {
 				return articles, nil
 			}
+			log.Println(err.Error())
 			return nil, err
 		}
 		articles = append(articles, art.Title)
@@ -554,6 +603,7 @@ func (a *article) GetArticlesList() ([]string, error) {
 		nil,
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, errors.New("error while quering on db")
 	}
 
@@ -566,6 +616,7 @@ func (a *article) GetArticlesList() ([]string, error) {
 				return titles, nil
 			}
 
+			log.Println(err.Error())
 			return nil, err
 		}
 
