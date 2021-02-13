@@ -161,7 +161,7 @@ func (c *category) IsCategoryExists(name string) error {
 		return err
 	}
 
-	var count int
+	var count models.Count
 	err = res.One(&count)
 	if err != nil {
 		if err == gocb.ErrNoResult {
@@ -169,6 +169,10 @@ func (c *category) IsCategoryExists(name string) error {
 		}
 
 		return err
+	}
+
+	if count.Count <= 0 {
+		return errors.New("category does not exists")
 	}
 
 	return nil

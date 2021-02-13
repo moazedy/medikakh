@@ -4,7 +4,7 @@ p, gold, user, read
 p, silver, user, read
 p, bronze, user, read
 p, admin, article, read
-p, admin, article, write
+p, admin, article, save
 p, admin, article, delete
 p, admin, article, update
 

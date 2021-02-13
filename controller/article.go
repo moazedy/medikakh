@@ -49,7 +49,7 @@ func (a *article) Save(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, "article seccessfuly saved to db")
+	c.JSON(http.StatusCreated, "article seccessfuly saved to db")
 }
 
 func (a *article) ReadArticle(c *gin.Context) {

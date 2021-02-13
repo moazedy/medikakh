@@ -11,3 +11,7 @@ type Tilte struct {
 type Id struct {
 	Id string `json:"id"`
 }
+
+type Count struct {
+	Count int `json:"count"`
+}

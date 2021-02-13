@@ -334,7 +334,7 @@ func (a *article) IsArticleExists(title string) (*bool, error) {
 		return nil, errors.New("error on serching for specific article")
 	}
 	var returnValue bool
-	var id string
+	var id models.Id
 	for res.Next() {
 		err = res.Row(&id)
 		if err != nil {
@@ -346,7 +346,7 @@ func (a *article) IsArticleExists(title string) (*bool, error) {
 		}
 	}
 
-	if id != "" {
+	if id.Id != "" {
 		returnValue = true
 	}
 

@@ -1,7 +1,6 @@
 package datastore
 
 import (
-	"fmt"
 	"github.com/couchbase/gocb/v2"
 	"github.com/go-redis/redis"
 	"time"
@@ -27,7 +26,6 @@ func NewCouchbaseSession() (*gocb.Cluster, error) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("connecting to couchbase databse ...")
 
 	return cluster, nil
 }
