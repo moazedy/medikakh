@@ -7,4 +7,5 @@ p, admin, article, read
 p, admin, article, save
 p, admin, article, delete
 p, admin, article, update
+p, admin, category, save
 

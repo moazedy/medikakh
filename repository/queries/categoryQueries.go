@@ -1,7 +1,7 @@
 package queries
 
 const (
-	InsertCategoryQuery = `INSERT INTO categories (KEY, VALUE) VALUES ($key, $category)`
+	InsertCategoryQuery = `INSERT INTO categories (KEY, VALUE) VALUES ($1, $2)`
 
 	ReadCategoryByIdQuery = `SELECT * FROM categories WHERE meta().id= $1`
 
@@ -14,5 +14,5 @@ const (
 
 	GetCategoriesQuery = `SELECT * FROM categories`
 
-	IsCategoryExistsQuery = "SELECT COUNT(*) FROM categories WHERE categories.name = $1"
+	IsCategoryExistsQuery = "SELECT COUNT(*) as count FROM categories WHERE name = $1"
 )

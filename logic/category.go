@@ -42,8 +42,13 @@ func (c *category) InsertCategory(userRole string, cat models.Category) error {
 		return errors.New("premission denied")
 	}
 
+	err := c.repo.IsCategoryExists(cat.Name)
+	if err == nil {
+		return errors.New("category alredy exists")
+	}
+
 	cat.Id = uuid.New()
-	err := c.repo.InsertCategory(cat)
+	err = c.repo.InsertCategory(cat)
 	if err != nil {
 		return err
 	}

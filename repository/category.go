@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 	"medikakh/domain/models"
 	"medikakh/repository/queries"
 
@@ -32,10 +33,7 @@ func NewCategoryRepo(session *gocb.Cluster) CategoryRepo {
 func (c *category) InsertCategory(cat models.Category) error {
 	_, err := c.session.Query(
 		queries.InsertCategoryQuery,
-		&gocb.QueryOptions{NamedParameters: map[string]interface{}{
-			"key":      cat.Id,
-			"categroy": cat,
-		}},
+		&gocb.QueryOptions{PositionalParameters: []interface{}{cat.Id, cat}},
 	)
 	if err != nil {
 		return err
@@ -170,7 +168,7 @@ func (c *category) IsCategoryExists(name string) error {
 
 		return err
 	}
-
+	fmt.Println(count.Count)
 	if count.Count <= 0 {
 		return errors.New("category does not exists")
 	}

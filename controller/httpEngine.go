@@ -28,6 +28,8 @@ func Run(port string) {
 
 	ddController := NewDDcontroller(logic.NewDDLogic(repository.NewDDrepo(dbSession)))
 
+	categoryController := NewCategoryController(logic.NewCategoryLogic(repository.NewCategoryRepo(dbSession)))
+
 	engine := gin.Default()
 	test := engine.Group("test")
 	test.POST("/register", userController.Register)
@@ -37,14 +39,14 @@ func Run(port string) {
 	test.GET("/users/read/:username", userController.ReadUser)
 	test.PATCH("/users/user", userController.UpdateUser)
 
-	test.POST("/articles/article", articleController.Save)
+	test.POST("/articles", articleController.Save)
 	test.GET("/articles/article/:title", articleController.ReadArticle)
 	test.GET("/articles/all", articleController.GetArticlesList)
 	test.GET("/articles/category/:categroy", articleController.GetArticlesByCategory)
 	test.DELETE("/articles/article/:title", articleController.DeleteArticle)
 	test.PATCH("/aritcles/aritcel", articleController.UpdateArticle)
 
-	test.POST("/videos/video", videoController.Save)
+	test.POST("/videos", videoController.Save)
 	test.GET("/video/video/:title", videoController.Read)
 	test.DELETE("/videos/delete/:title", videoController.Delete)
 	test.PATCH("/videos/video", videoController.UpdateVideo)
@@ -54,6 +56,8 @@ func Run(port string) {
 	test.POST("/dd/insert", ddController.InsertData)
 	test.GET("/dd/read/:title", ddController.ReadData)
 	test.GET("/dd/pattern/:pattern", ddController.ReadDataUsingPattern)
+
+	test.POST("/categories", categoryController.AddCategory)
 
 	engine.Run(port)
 }
