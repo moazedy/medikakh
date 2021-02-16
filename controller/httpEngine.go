@@ -42,7 +42,7 @@ func Run(port string) {
 	test.POST("/articles", articleController.Save)
 	test.GET("/articles/article/:title", articleController.ReadArticle)
 	test.GET("/articles/all", articleController.GetArticlesList)
-	test.GET("/articles/category/:categroy", articleController.GetArticlesByCategory)
+	test.GET("/articles/category/:category", articleController.GetArticlesByCategory)
 	test.DELETE("/articles/article/:title", articleController.DeleteArticle)
 	test.PATCH("/aritcles/aritcel", articleController.UpdateArticle)
 

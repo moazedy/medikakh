@@ -75,6 +75,13 @@ func (a *article) ReadArticle(userRole, articleTitle string) (*models.Article, e
 	if !roleOK {
 		return nil, errors.New("role statment invalid")
 	}
+	articleExistance, err := a.repo.IsArticleExists(articleTitle)
+	if err != nil {
+		return nil, err
+	}
+	if !*articleExistance {
+		return nil, errors.New("the article does not exists !")
+	}
 
 	status, err := a.GetArticleStatus(articleTitle)
 	if err != nil {

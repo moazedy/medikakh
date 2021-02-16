@@ -297,7 +297,6 @@ func (a *article) DeleteArticle(id string) error {
 }
 
 func (a *article) GetArticleStatus(id string) (*string, error) {
-	log.Println("in getting status")
 	res, err := a.session.Query(
 		queries.GetArticleStatusQuery,
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},

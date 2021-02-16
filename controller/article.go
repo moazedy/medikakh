@@ -139,7 +139,7 @@ func (a *article) GetArticlesList(c *gin.Context) {
 }
 
 func (a *article) GetArticlesByCategory(c *gin.Context) {
-	category := c.Param("category")
+  category := c.Param("category")
 	if category == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "category value can not be empty"})
 		return
