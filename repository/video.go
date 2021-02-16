@@ -2,9 +2,11 @@ package repository
 
 import (
 	"errors"
-	"github.com/couchbase/gocb/v2"
+	"log"
 	"medikakh/domain/models"
 	"medikakh/repository/queries"
+
+	"github.com/couchbase/gocb/v2"
 )
 
 type VideoRepo interface {
@@ -34,15 +36,16 @@ func NewVideoRepo(session *gocb.Cluster) VideoRepo {
 	return v
 }
 
-func (v *video) Save(video models.Video) error {
+func (v *video) Save(vid models.Video) error {
 	_, err := v.session.Query(
 		queries.SaveVideoQuery,
 		&gocb.QueryOptions{NamedParameters: map[string]interface{}{
-			"id":    video.Id,
-			"video": video,
+			"id":    vid.Id,
+			"video": vid,
 		}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -57,6 +60,7 @@ func (v *video) GetVideoById(id string) (*models.Video, error) {
 		}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -68,6 +72,7 @@ func (v *video) GetVideoById(id string) (*models.Video, error) {
 				return nil, errors.New("the video does not exist !")
 			}
 
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -84,6 +89,7 @@ func (v *video) GetVideoByTitle(title string) (*models.Video, error) {
 		}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -95,6 +101,7 @@ func (v *video) GetVideoByTitle(title string) (*models.Video, error) {
 				return nil, errors.New("the video does not exist !")
 			}
 
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -113,6 +120,7 @@ func (v *video) GetVideoId(title string) (*string, error) {
 			return nil, errors.New("video does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -120,6 +128,7 @@ func (v *video) GetVideoId(title string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&id)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -137,6 +146,7 @@ func (v *video) GetVideoCategory(id string) (*string, error) {
 			return nil, errors.New("video does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -162,6 +172,7 @@ func (v *video) GetVideoSubCategory(id string) (*string, error) {
 			return nil, errors.New("video does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -169,6 +180,7 @@ func (v *video) GetVideoSubCategory(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&subCat)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -182,6 +194,7 @@ func (v *video) GetVideosByCategory(cat string) ([]string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -194,6 +207,7 @@ func (v *video) GetVideosByCategory(cat string) ([]string, error) {
 				return videos, nil
 			}
 
+			log.Println(err.Error())
 			return nil, err
 		}
 
@@ -209,6 +223,7 @@ func (v *video) DeleteVideo(id string) error {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -228,6 +243,7 @@ func (v *video) UpdateVideo(video models.Video) error {
 		}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 
@@ -244,6 +260,7 @@ func (v *video) GetVideoStatus(id string) (*string, error) {
 			return nil, errors.New("video does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -251,6 +268,7 @@ func (v *video) GetVideoStatus(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&status)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -265,6 +283,7 @@ func (v *video) GetAllVideosList() ([]string, error) {
 		nil,
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -276,6 +295,7 @@ func (v *video) GetAllVideosList() ([]string, error) {
 			if err == gocb.ErrNoResult {
 				return videos, nil
 			}
+			log.Println(err.Error())
 			return nil, err
 		}
 		videos = append(videos, video.Title)
@@ -290,6 +310,7 @@ func (v *video) GetVideoBySubCategory(cat, subCat string) ([]string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat, subCat}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -302,6 +323,7 @@ func (v *video) GetVideoBySubCategory(cat, subCat string) ([]string, error) {
 				return videos, nil
 			}
 
+			log.Println(err.Error())
 			return nil, err
 		}
 
@@ -321,18 +343,19 @@ func (v *video) IsVideoExists(title string) (*bool, error) {
 		return nil, errors.New("error on serching for specific video")
 	}
 	var returnValue bool
-	var id string
+	var id models.Id
 	for res.Next() {
 		err = res.Row(&id)
 		if err != nil {
 			if err == gocb.ErrNoResult {
 				return &returnValue, nil
 			}
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
 
-	if id != "" {
+	if id.Id != "" {
 		returnValue = true
 	}
 
@@ -349,6 +372,7 @@ func (v *video) GetVideoTitle(id string) (*string, error) {
 			return nil, errors.New("video does not exist !")
 		}
 
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -356,6 +380,7 @@ func (v *video) GetVideoTitle(id string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&title)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}

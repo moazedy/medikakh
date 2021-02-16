@@ -8,4 +8,7 @@ p, admin, article, save
 p, admin, article, delete
 p, admin, article, update
 p, admin, category, save
-
+p, admin, video, save
+p, admin, video, read
+p, admin, video, delete
+p, admin, video, update

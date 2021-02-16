@@ -3,7 +3,7 @@ package models
 import "github.com/google/uuid"
 
 type Video struct {
-	Id           uuid.UUID `json:"id"`
+	Id           uuid.UUID `json:"id,omitempty"`
 	Title        string    `json:"title"`
 	ContentLink  string    `json:"content_link"`
 	Status       string    `json:"status"`
