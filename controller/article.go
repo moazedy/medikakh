@@ -114,7 +114,7 @@ func (a *article) UpdateArticle(c *gin.Context) {
 
 	err = a.logic.UpdateArticle(*role, art)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "error while updating article"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -139,7 +139,7 @@ func (a *article) GetArticlesList(c *gin.Context) {
 }
 
 func (a *article) GetArticlesByCategory(c *gin.Context) {
-  category := c.Param("category")
+	category := c.Param("category")
 	if category == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "category value can not be empty"})
 		return

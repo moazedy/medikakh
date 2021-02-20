@@ -25,8 +25,8 @@ const (
 
 	IsArticleExistsQuery = `SELECT meta().id FROM articles WHERE articles.title = $1`
 
-	UpdateArticleQuery = `UPDATE articles SET title=$1 status=$2 summary=$3 etiology=$4 clinical_featuers=$5 ` +
-		` diagnostics=$6 treatment=$7 complications=$8 prevention=$9 references=$10 category=$11 sub_category=$12 ` +
+	UpdateArticleQuery = `UPDATE articles SET title=$1, status=$2, summary=$3, etiology=$4, clinical_featuers=$5, ` +
+		` diagnostics=$6, treatment=$7, complications=$8, prevention=$9, references=$10, category=$11, sub_category=$12 ` +
 		` WHERE meta().id = $13`
 
 	ReadArticleDiagnostics = `SELECT articles.diagnostics FROM articles WHERE meta().id = $1`

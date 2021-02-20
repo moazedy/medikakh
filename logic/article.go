@@ -222,6 +222,16 @@ func (a *article) UpdateArticle(userRole string, art models.ArticleUpdate) error
 	if art.Category == nil {
 		NewArt.Category = oldArt.Category
 	} else {
+		dbSession, err := datastore.NewCouchbaseSession()
+		if err != nil {
+			return err
+		}
+		categoryLogic := NewCategoryLogic(repository.NewCategoryRepo(dbSession))
+		err = categoryLogic.IsCategoryExists(*art.Category)
+		if err != nil {
+			return err
+		}
+
 		NewArt.Category = *art.Category
 	}
 

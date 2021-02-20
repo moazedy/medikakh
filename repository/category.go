@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"log"
 	"medikakh/domain/models"
 	"medikakh/repository/queries"
 
@@ -36,6 +37,7 @@ func (c *category) InsertCategory(cat models.Category) error {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{cat.Id, cat}},
 	)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -48,6 +50,7 @@ func (c *category) ReadCategoryById(id string) (*models.Category, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -55,6 +58,7 @@ func (c *category) ReadCategoryById(id string) (*models.Category, error) {
 	for res.Next() {
 		err = res.Row(&cat)
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -68,6 +72,7 @@ func (c *category) ReadCategoryByName(name string) (*models.Category, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{name}},
 	)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -75,6 +80,7 @@ func (c *category) ReadCategoryByName(name string) (*models.Category, error) {
 	for res.Next() {
 		err = res.Row(&cat)
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -89,6 +95,7 @@ func (c *category) ReadCategorySubCategories(id string) ([]string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{id}},
 	)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -96,6 +103,7 @@ func (c *category) ReadCategorySubCategories(id string) ([]string, error) {
 	for res.Next() {
 		err = res.Row(&subCats)
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -109,6 +117,7 @@ func (c *category) GetCategoryId(name string) (*string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{name}},
 	)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -116,6 +125,7 @@ func (c *category) GetCategoryId(name string) (*string, error) {
 	for res.Next() {
 		err = res.Row(&id)
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -129,6 +139,7 @@ func (c *category) GetCategories() ([]models.Category, error) {
 		nil,
 	)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -141,6 +152,7 @@ func (c *category) GetCategories() ([]models.Category, error) {
 				return cats, nil
 			}
 
+			log.Println(err)
 			return nil, err
 		}
 
@@ -156,6 +168,7 @@ func (c *category) IsCategoryExists(name string) error {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{name}},
 	)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -166,6 +179,7 @@ func (c *category) IsCategoryExists(name string) error {
 			return errors.New("category does not exists")
 		}
 
+		log.Println(err)
 		return err
 	}
 	fmt.Println(count.Count)
