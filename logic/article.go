@@ -114,12 +114,17 @@ func (a *article) DeleteArticle(userRole, title string) error {
 	if !permissionOk {
 		return errors.New("unauthorized user")
 	}
-
+	existance, err := a.repo.IsArticleExists(title)
+	if err != nil {
+		return err
+	}
+	if *existance == false {
+		return errors.New("article " + title + " does not exists")
+	}
 	id, err := a.repo.GetArticleId(title)
 	if err != nil {
 		return err
 	}
-
 	err = a.repo.DeleteArticle(*id)
 	if err != nil {
 		return err

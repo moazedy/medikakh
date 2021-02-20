@@ -177,7 +177,6 @@ func (a *article) GetArticleId(title string) (*string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{title}},
 	)
 	if err != nil {
-
 		log.Println(err.Error())
 		if err == gocb.ErrNoResult {
 			return nil, errors.New("the article does not exist !")

@@ -11,7 +11,7 @@ const (
 
 	GetArticleSubCategoryQuery = `SELECT articles.sub_category FROM articles WHRE meta().id=$1`
 
-	GetArticleIdQuery = `SELECT articles.Id FROM articles WHERE title = $1`
+	GetArticleIdQuery = `SELECT articles.id FROM articles WHERE title = $1`
 
 	ReadArticleSummeryQuery = `SELECT articles.summery FROM articles WHRE meta().id=$1`
 
