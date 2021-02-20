@@ -80,7 +80,7 @@ func Login(c *gin.Context) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	expTime := time.Now().Add(5 * time.Minute)
+	expTime := time.Now().Add(10 * time.Minute)
 	claimes := &models.Claimes{
 		UserId:    user.Id,
 		UserRole:  user.Role,

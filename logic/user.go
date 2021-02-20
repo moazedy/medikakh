@@ -293,8 +293,10 @@ func (u *user) UpdateUser(userRole, userId string, us models.UserUpdate) error {
 		return errors.New("premission denied")
 	}
 
-	if userRole != "admin" || userId != us.Id.String() {
-		return errors.New("access denied")
+	if !(userRole == constants.AdminRoleObject || userRole == constants.SystemRoleObject) {
+		if userId != us.Id.String() {
+			return errors.New("access denied")
+		}
 	}
 
 	oldUser, err := u.repo.ReadUserById(userId)
@@ -305,25 +307,25 @@ func (u *user) UpdateUser(userRole, userId string, us models.UserUpdate) error {
 	newUser.Id = us.Id
 	newUser.CreatedAt = oldUser.CreatedAt
 
-	if us.Username != nil {
-		existance, err := u.repo.IsUsernameExists(*us.Username)
+	if us.Username != "" {
+		existance, err := u.repo.IsUsernameExists(us.Username)
 		if err != nil {
 			return err
 		}
 		if existance {
 			return errors.New("username alredy exists")
 		}
-		newUser.Username = *us.Username
+		newUser.Username = us.Username
 	} else {
 		newUser.Username = oldUser.Username
 	}
 
-	if us.Password != nil {
-		err := utils.CheckPasswordValueValidation(*us.Password)
+	if us.Password != "" {
+		err := utils.CheckPasswordValueValidation(us.Password)
 		if err != nil {
 			return err
 		}
-		hashedPass, err := bcrypt.GenerateFromPassword([]byte(*us.Password), 10)
+		hashedPass, err := bcrypt.GenerateFromPassword([]byte(us.Password), 10)
 		if err != nil {
 			return err
 		}
@@ -332,19 +334,19 @@ func (u *user) UpdateUser(userRole, userId string, us models.UserUpdate) error {
 		newUser.Password = oldUser.Password
 	}
 
-	if us.Email != nil {
-		newUser.Email = *us.Email // TODO: email validation
+	if us.Email != "" {
+		newUser.Email = us.Email // TODO: email validation
 	} else {
 		newUser.Email = oldUser.Email
 	}
 
-	if us.Role != nil {
+	if us.Role != "" {
 		ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.UpdateRoleAction)
 		if !ok {
 			return errors.New("premission denied")
 		}
 
-		newUser.Role = *us.Role
+		newUser.Role = us.Role
 	} else {
 		newUser.Role = oldUser.Role
 	}

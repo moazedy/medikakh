@@ -37,14 +37,14 @@ func Run(port string) {
 	test.POST("/login", userController.Login)
 
 	test.GET("/users/read/:username", userController.ReadUser)
-	test.PATCH("/users/user", userController.UpdateUser)
+	test.PATCH("/users", userController.UpdateUser)
 
 	test.POST("/articles", articleController.Save)
 	test.GET("/articles/article/:title", articleController.ReadArticle)
 	test.GET("/articles/all", articleController.GetArticlesList)
 	test.GET("/articles/category/:category", articleController.GetArticlesByCategory)
 	test.DELETE("/articles/article/:title", articleController.DeleteArticle)
-	test.PATCH("/aritcles/aritcel", articleController.UpdateArticle)
+	test.PATCH("/articles", articleController.UpdateArticle)
 
 	test.POST("/videos", videoController.Save)
 	test.GET("/video/video/:title", videoController.Read)

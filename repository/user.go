@@ -66,6 +66,7 @@ func (u *user) ReadUserById(userId string) (*models.User, error) {
 			if err == gocb.ErrNoResult {
 				return nil, errors.New("user does not exist !")
 			}
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -78,7 +79,7 @@ func (u *user) ReadUserByUsername(username string) (*models.User, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{username}},
 	)
 	if err != nil {
-		log.Println("error happend in here")
+		log.Println(err)
 		return nil, errors.New("error on reading data form db")
 	}
 
@@ -89,6 +90,7 @@ func (u *user) ReadUserByUsername(username string) (*models.User, error) {
 			if err == gocb.ErrNoResult {
 				return nil, errors.New("user does not exist !")
 			}
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -102,6 +104,7 @@ func (u *user) DeleteUser(Id string) error {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{Id}},
 	)
 	if err != nil {
+		log.Println(err)
 		return errors.New("error in interactin with database")
 	}
 
@@ -114,7 +117,7 @@ func (u *user) GetUserPassword(Id string) (*string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{Id}},
 	)
 	if err != nil {
-		log.Println("id is : " + Id)
+		log.Println(err)
 		return nil, errors.New("error on reading data from db")
 	}
 
@@ -123,8 +126,10 @@ func (u *user) GetUserPassword(Id string) (*string, error) {
 		err = res.Row(&pass)
 		if err != nil {
 			if err == gocb.ErrNoResult {
+				log.Println(err)
 				return nil, errors.New("user does not exist")
 			}
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -138,6 +143,7 @@ func (u *user) GetUserRole(Id string) (*string, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{Id}},
 	)
 	if err != nil {
+		log.Println(err)
 		return nil, errors.New("error on reading data from db")
 	}
 
@@ -146,8 +152,10 @@ func (u *user) GetUserRole(Id string) (*string, error) {
 		err = res.Row(&role)
 		if err != nil {
 			if err == gocb.ErrNoResult {
+				log.Println(err)
 				return nil, errors.New("user does not exist")
 			}
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -169,8 +177,10 @@ func (u *user) GetUserIdByUsername(username string) (*string, error) {
 		err = res.Row(&id)
 		if err != nil {
 			if err == gocb.ErrNoResult {
+				log.Println(err)
 				return nil, errors.New("user does not exist")
 			}
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -191,6 +201,7 @@ func (u *user) UpdateUser(newUser models.User) error {
 		}},
 	)
 	if err != nil {
+		log.Println(err)
 		return errors.New("error on working wiht db")
 	}
 
@@ -215,6 +226,7 @@ func (u *user) IsUsernameExists(username string) (bool, error) {
 			if err == gocb.ErrNoResult {
 				return false, nil
 			}
+			log.Println(err)
 			return false, err
 		}
 	}
