@@ -3,7 +3,7 @@ package queries
 const (
 	SaveVideoQuery = `INSERT INTO videos (KEY,VALUE) VALUES ($id, $video)`
 
-	GetVideoByIdQuery = `SELECT * FROM videos WHERE meta().id = $id`
+	GetVideoByIdQuery = `SELECT videos.* FROM videos WHERE meta().id = $id`
 
 	GetVideoByTitleQuery = `SELECT videos.* FROM videos WHERE title = $title`
 
@@ -17,8 +17,8 @@ const (
 
 	DeleteVideoQuery = `DELETE FROM videos WHERE meta().id = $1`
 
-	UpdateVideoQuery = `UPDATE videos SET title=$title, content_link=$contentlink, status=$status, ` +
-		`category= $category, sub_category=$subcategory, descriptions=$descriptions WHERE meta().id= $id`
+	UpdateVideoQuery = `UPDATE videos SET title=$1, content_link=$2, status=$3, ` +
+		`category= $4, sub_category=$5, descriptions=$6 WHERE meta().id= $7`
 
 	GetVideoStatusQuery = `SELECT videos.status FROM videos WHERE meta().id= $1`
 

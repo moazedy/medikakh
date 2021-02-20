@@ -18,7 +18,7 @@ type VideoRepo interface {
 	GetVideoSubCategory(id string) (*string, error)
 	GetVideosByCategory(cat string) ([]string, error)
 	DeleteVideo(id string) error
-	UpdateVideo(video models.Video) error
+	UpdateVideo(vid models.Video) error
 	GetVideoStatus(id string) (*string, error)
 	GetAllVideosList() ([]string, error)
 	GetVideoBySubCategory(cat, subCat string) ([]string, error)
@@ -230,17 +230,16 @@ func (v *video) DeleteVideo(id string) error {
 	return nil
 }
 
-func (v *video) UpdateVideo(video models.Video) error {
+func (v *video) UpdateVideo(vid models.Video) error {
 	_, err := v.session.Query(
 		queries.UpdateVideoQuery,
-		&gocb.QueryOptions{NamedParameters: map[string]interface{}{
-			"title":        video.Title,
-			"contentlink":  video.ContentLink,
-			"status":       video.Status,
-			"category":     video.Category,
-			"subcategory":  video.SubCategory,
-			"descriptions": video.Descriptions,
-		}},
+		&gocb.QueryOptions{PositionalParameters: []interface{}{vid.Title,
+			vid.ContentLink,
+			vid.Status,
+			vid.Category,
+			vid.SubCategory,
+			vid.Descriptions,
+			vid.Id}},
 	)
 	if err != nil {
 		log.Println(err.Error())
@@ -376,7 +375,7 @@ func (v *video) GetVideoTitle(id string) (*string, error) {
 		return nil, err
 	}
 
-	var title string
+	var title models.Tilte
 	for res.Next() {
 		err = res.Row(&title)
 		if err != nil {
@@ -385,6 +384,6 @@ func (v *video) GetVideoTitle(id string) (*string, error) {
 		}
 	}
 
-	return &title, nil
+	return &title.Title, nil
 
 }
