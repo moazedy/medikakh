@@ -124,7 +124,7 @@ func (v *video) GetVideoId(title string) (*string, error) {
 		return nil, err
 	}
 
-	var id string
+	var id models.Id
 	for res.Next() {
 		err = res.Row(&id)
 		if err != nil {
@@ -133,7 +133,7 @@ func (v *video) GetVideoId(title string) (*string, error) {
 		}
 	}
 
-	return &id, nil
+	return &id.Id, nil
 }
 
 func (v *video) GetVideoCategory(id string) (*string, error) {

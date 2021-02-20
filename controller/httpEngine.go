@@ -49,7 +49,7 @@ func Run(port string) {
 
 	test.POST("/videos", videoController.Save)
 	test.GET("/video/video/:title", videoController.Read)
-	test.DELETE("/videos/delete/:title", videoController.Delete)
+	test.DELETE("/videos/video/:title", videoController.Delete)
 	test.PATCH("/videos/video", videoController.UpdateVideo)
 	test.GET("/videos/all", videoController.GetAllVideosList)
 	test.GET("/videos/category/:category", videoController.GetVideosByCategory)

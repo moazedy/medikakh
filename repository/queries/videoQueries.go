@@ -17,8 +17,8 @@ const (
 
 	DeleteVideoQuery = `DELETE FROM videos WHERE meta().id = $1`
 
-	UpdateVideoQuery = `UPDATE videos SET title=$title content_link=$contentlink status=$status ` +
-		`category= $category sub_category=$subcategory descriptions=$descriptions WHERE meta().id= $id`
+	UpdateVideoQuery = `UPDATE videos SET title=$title, content_link=$contentlink, status=$status, ` +
+		`category= $category, sub_category=$subcategory, descriptions=$descriptions WHERE meta().id= $id`
 
 	GetVideoStatusQuery = `SELECT videos.status FROM videos WHERE meta().id= $1`
 

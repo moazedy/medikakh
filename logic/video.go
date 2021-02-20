@@ -108,7 +108,13 @@ func (v *video) Delete(userRole, vidTitle string) error {
 	if !permissionOk {
 		return errors.New("unauthorized user")
 	}
-
+	existance, err := v.repo.IsVideoExists(vidTitle)
+	if err != nil {
+		return err
+	}
+	if *existance == false {
+		return errors.New("video : " + vidTitle + " does not exists")
+	}
 	id, err := v.repo.GetVideoId(vidTitle)
 	if err != nil {
 		return err
