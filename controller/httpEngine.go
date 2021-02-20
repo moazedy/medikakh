@@ -38,6 +38,7 @@ func Run(port string) {
 
 	test.GET("/users/read/:username", userController.ReadUser)
 	test.PATCH("/users", userController.UpdateUser)
+	test.DELETE("/users/user/:user_id", userController.DeleteUser)
 
 	test.POST("/articles", articleController.Save)
 	test.GET("/articles/article/:title", articleController.ReadArticle)

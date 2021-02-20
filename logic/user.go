@@ -26,6 +26,7 @@ type UserLogic interface {
 	GetUserId(userRole, username string) (*string, error)
 	GetPassword(userRole, RequesterUserId, id string) (*string, error)
 	UpdateUser(userRole, userId string, us models.UserUpdate) error
+	DeleteUser(userRole, userId string) error
 }
 
 type user struct {
@@ -352,6 +353,34 @@ func (u *user) UpdateUser(userRole, userId string, us models.UserUpdate) error {
 	}
 
 	err = u.repo.UpdateUser(newUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *user) DeleteUser(userRole, userId string) error {
+	roleOK := utils.CheckForRoleStatmentCorrectness(userRole)
+	if !roleOK {
+		return errors.New("role statment invalid")
+	}
+
+	// checking for user premissins on saving articles
+	ok := authorization.IsPermissioned(userRole, constants.UserObject, constants.DeleteAction)
+	if !ok {
+		return errors.New("premission denied")
+	}
+
+	user, err := u.repo.ReadUserById(userId)
+	if err != nil {
+		return err
+	}
+	if user.Username == "" {
+		return errors.New("user does not exists")
+	}
+
+	err = u.repo.DeleteUser(userId)
 	if err != nil {
 		return err
 	}

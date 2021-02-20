@@ -24,6 +24,7 @@ type UserController interface {
 	GetUserId(username string) (*string, error)
 	Login(c *gin.Context)
 	UpdateUser(c *gin.Context)
+	DeleteUser(c *gin.Context)
 }
 
 type user struct {
@@ -218,4 +219,17 @@ func (u *user) UpdateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "user updated"})
+}
+
+func (u *user) DeleteUser(c *gin.Context) {
+	role := utils.ExtractRoleFromToken(c)
+	userId := c.Param("user_id")
+
+	err := u.logic.DeleteUser(*role, userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, nil)
 }
