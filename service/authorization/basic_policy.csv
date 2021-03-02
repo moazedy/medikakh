@@ -15,3 +15,8 @@ p, admin, video, save
 p, admin, video, read
 p, admin, video, delete
 p, admin, video, update
+p, admin, dd, save
+p, admin, dd, read
+p, admin, dd, delete
+p, admin, dd, update
+

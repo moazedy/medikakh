@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+	"log"
 	"medikakh/domain/models"
 	"medikakh/repository/queries"
 
@@ -12,6 +14,7 @@ type DDrepo interface {
 	ReadDataById(Id string) (*models.DDmodel, error)
 	ReadDataByTitle(title string) (*models.DDmodel, error)
 	ReadDataUsingPattern(title string) (*models.DDtitles, error)
+	IsDDExists(title string) (*bool, error)
 }
 
 type dd struct {
@@ -33,6 +36,8 @@ func (d *dd) InsertData(dd models.DDmodel) error {
 		}},
 	)
 	if err != nil {
+		log.Println("error is here")
+		log.Println(err.Error())
 		return err
 	}
 
@@ -45,6 +50,7 @@ func (d *dd) ReadDataById(Id string) (*models.DDmodel, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{Id}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -52,6 +58,7 @@ func (d *dd) ReadDataById(Id string) (*models.DDmodel, error) {
 	for res.Next() {
 		err = res.Row(&dd)
 		if err != nil {
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -65,6 +72,7 @@ func (d *dd) ReadDataByTitle(title string) (*models.DDmodel, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{title}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -72,6 +80,10 @@ func (d *dd) ReadDataByTitle(title string) (*models.DDmodel, error) {
 	for res.Next() {
 		err = res.Row(&dd)
 		if err != nil {
+			if err == gocb.ErrNoResult {
+				return nil, errors.New("dd does not exists")
+			}
+			log.Println(err.Error())
 			return nil, err
 		}
 	}
@@ -85,6 +97,7 @@ func (d *dd) ReadDataUsingPattern(title string) (*models.DDtitles, error) {
 		&gocb.QueryOptions{PositionalParameters: []interface{}{pattern}},
 	)
 	if err != nil {
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -96,6 +109,7 @@ func (d *dd) ReadDataUsingPattern(title string) (*models.DDtitles, error) {
 			if err == gocb.ErrNoResult {
 				return &dds, nil
 			}
+			log.Println(err.Error())
 			return nil, err
 		}
 
@@ -103,4 +117,34 @@ func (d *dd) ReadDataUsingPattern(title string) (*models.DDtitles, error) {
 	}
 
 	return &dds, nil
+}
+
+func (d *dd) IsDDExists(title string) (*bool, error) {
+	res, err := d.session.Query(
+		queries.IsDDExistsQuery,
+		&gocb.QueryOptions{PositionalParameters: []interface{}{title}},
+	)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, errors.New("error on serching for specific dd")
+	}
+	var returnValue bool
+	var id models.Id
+	for res.Next() {
+		err = res.Row(&id)
+		if err != nil {
+			if err == gocb.ErrNoResult {
+				return &returnValue, errors.New("dd does not exist") //it should be checked later
+			}
+			log.Println(err.Error())
+			return nil, err
+		}
+	}
+
+	if id.Id != "" {
+		returnValue = true
+	}
+
+	return &returnValue, nil
+
 }

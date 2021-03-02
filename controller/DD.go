@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"medikakh/application/utils"
 	"medikakh/domain/models"
 	"medikakh/logic"
@@ -35,13 +36,14 @@ func (d *dd) InsertData(c *gin.Context) {
 	}
 
 	role := utils.ExtractRoleFromToken(c)
-	if role != nil {
+	if role == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "unable to extract role from token"})
 		return
 	}
 
 	err = d.logic.InsertData(*role, newDD)
 	if err != nil {
+		fmt.Println(err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "error on inserting data to dd"})
 		return
 	}
